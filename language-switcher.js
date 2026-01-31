@@ -94,14 +94,48 @@ class LanguageManager {
             switcherContainer.appendChild(btn);
         });
 
+        // 1. Try .nav-links (Home structure)
         const navLinks = document.querySelector('.nav-links');
         if (navLinks) {
             navLinks.appendChild(switcherContainer);
-        } else {
-            const simpleNav = document.querySelector('nav');
-            if (simpleNav) {
-                simpleNav.appendChild(switcherContainer);
-            }
+            return;
+        }
+
+        // 2. Try header .header-content nav (Inner pages structure)
+        const headerNav = document.querySelector('header .header-content nav');
+        if (headerNav) {
+            // Check if there are existing links, append after them
+            headerNav.style.display = 'flex';
+            headerNav.style.alignItems = 'center';
+            headerNav.style.gap = '1.5rem'; // Ensure spacing
+            headerNav.appendChild(switcherContainer);
+            return;
+        }
+
+        // 3. Fallback: just find any nav
+        const simpleNav = document.querySelector('nav');
+        if (simpleNav) {
+            simpleNav.appendChild(switcherContainer);
+        }
+
+        // Check if styles need to be added for mobile
+        if (!document.getElementById('lang-switcher-style')) {
+            const style = document.createElement('style');
+            style.id = 'lang-switcher-style';
+            style.innerHTML = `
+                /* Mobile Styles for Lang Switcher */
+                @media (max-width: 768px) {
+                   .lang-switcher {
+                       margin-top: 1rem;
+                       justify-content: center;
+                   }
+                   header .header-content nav {
+                       flex-direction: column;
+                       gap: 1rem !important;
+                   }
+                }
+            `;
+            document.head.appendChild(style);
         }
     }
 
