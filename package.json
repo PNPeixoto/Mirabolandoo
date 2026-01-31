@@ -3,11 +3,9 @@
     "version": "1.0.0",
     "description": "Mirabolando Confeitaria - Frontend & Backend",
     "scripts": {
-        "build": "cd backend && npm install && tsc",
         "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
         "dev:backend": "cd backend && npm run dev",
-        "install-all": "npm install && cd backend && npm install",
-        "vercel-build": "cd backend && npm install && tsc"
+        "install-all": "npm install && cd backend && npm install"
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.93.3",
