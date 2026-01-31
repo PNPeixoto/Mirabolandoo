@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Cardápio do dia da Mirabolando Confeitaria. Doces disponíveis para pronta entrega em Macaé.">
+    <title>Mirabolando - Cardápio Diário</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="premium-animations.css">
+</head>
+
+<body>
+    <!-- Fullscreen Loading Animation -->
+    <div class="fullscreen-loader-light" id="fullscreenLoader">
+        <div class="loader-content-light">
+            <div class="loader-logo-light">
+                <img src="assets/logo-mirabolando.jpg" alt="Mirabolando" class="loader-logo-img-light">
+                <div class="loader-ring-light"></div>
+            </div>
+            <h2 class="loader-brand-light">Mirabolando</h2>
+            <p class="loader-tagline-light">Carregando delícias...</p>
+            <div class="loader-dots-light">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical: Ensure loader is ALWAYS removed after 3 seconds -->
+    <script>
+        (function () {
+            setTimeout(function () {
+                var loader = document.getElementById('fullscreenLoader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    loader.style.visibility = 'hidden';
+                    loader.style.pointerEvents = 'none';
+                    setTimeout(function () {
+                        if (loader.parentNode) {
+                            loader.parentNode.removeChild(loader);
+                        }
+                    }, 600);
+                }
+            }, 3000);
+        })();
+    </script>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="customCursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-area">
+                <img src="assets/logo-mirabolando.jpg" alt="Logo Mirabolando"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.8rem; box-shadow: 0 4px 15px rgba(107, 45, 60, 0.2);">
+                <h1>Mirabolando</h1>
+                <p class="subtitle" data-i18n="cardapio.subtitle">Cardápio da loja</p>
+            </div>
+            <nav>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="cardapio.html" class="active" data-i18n="nav.cardapio">Cardápio</a>
+                <a href="pronta-entrega.html" data-i18n="nav.pronta_entrega">Pronta Entrega</a>
+                <a href="encomenda.html" data-i18n="nav.encomendas">Encomendas</a>
+                <a href="cole.html" data-i18n="nav.cole">Colé</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="intro">
+            <h2 data-i18n="cardapio.intro.title">Disponível Agora</h2>
+            <p data-i18n="cardapio.intro.text">Bolos disponíveis para retirada imediata na loja! Compre e leve no ato.
+                Quantidades limitadas.</p>
+        </div>
+
+
+
+        <!-- Search -->
+        <div class="search-container" style="justify-content: center; margin-bottom: 3rem;">
+            <div class="search-input-wrapper" style="max-width: 600px;">
+                <i class="search-icon">🔍</i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar bolos disponíveis..."
+                    data-i18n-placeholder="cardapio.search.placeholder">
+            </div>
+        </div>
+
+        <!-- Filters (New) -->
+        <div class="filters-container" id="filtersContainer" style="justify-content: center;">
+            <button class="filter-btn active" data-category="all">
+                <span class="filter-icon">✨</span> <span data-i18n="cardapio.filter.all">Todos</span>
+            </button>
+            <button class="filter-btn" data-category="Bolo">
+                <span class="filter-icon">🎂</span> <span data-i18n="cardapio.filter.cakes">Bolos</span>
+            </button>
+            <button class="filter-btn" data-category="Torta">
+                <span class="filter-icon">🥧</span> <span data-i18n="cardapio.filter.pies">Tortas</span>
+            </button>
+            <button class="filter-btn" data-category="Cheesecake">
+                <span class="filter-icon">🍰</span> <span data-i18n="cardapio.filter.cheesecakes">Cheesecakes</span>
+            </button>
+            <button class="filter-btn" data-category="Brownie">
+                <span class="filter-icon">🍫</span> <span data-i18n="cardapio.filter.brownies">Brownies</span>
+            </button>
+        </div>
+
+        <section class="menu-container" id="menu-container">
+            <!-- Cards gerados via JS -->
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p data-i18n="cardapio.footer.text1">&copy; 2026 Mirabolando Confeitaria.</p>
+            <p data-i18n="cardapio.footer.text2">Feito com amor e açúcar.</p>
+        </div>
+    </footer>
+
+    <script src="data-cardapio.js"></script>
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Priority: Local Data
+            if (window.menuCardapioLoja) {
+                console.log('Rendering from local data-cardapio.js');
+                window.menuItems = window.menuCardapioLoja; // Sync for filtering
+                renderMenu(window.menuCardapioLoja);
+                setupSearch();
+                hideFullscreenLoader();
+
+                // Final check to ensure translations apply once LanguageManager is ready
+                setTimeout(() => {
+                    if (window.languageManager) renderMenu(window.menuItems);
+                }, 100);
+                return;
+            }
+
+            // Fallback: Supabase
+            await loadMenuFromSupabase();
+            hideFullscreenLoader();
+
+            // Listen for language changes to re-render menu
+            window.addEventListener('languageChanged', () => {
+                if (window.menuItems) {
+                    const searchInput = document.getElementById('searchInput');
+                    const activeCat = getActiveCategory();
+                    filterItems(searchInput ? searchInput.value : '', activeCat);
+                }
+            });
+        });
+
+        function hideFullscreenLoader() {
+            const loader = document.getElementById('fullscreenLoader');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(() => {
+                    loader.remove();
+                }, 700);
+            }
+        }
+
+        // Fallback: Hide loader after max 5 seconds
+        setTimeout(() => {
+            hideFullscreenLoader();
+        }, 5000);
+
+        async function loadMenuFromSupabase() {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '<p style="text-align:center; width:100%;">Carregando cardápio...</p>';
+
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/menu_items?menu_type=eq.cardapio&active=eq.true&quantity=gt.0&order=category,name`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+
+                if (!response.ok) throw new Error('Erro ao carregar');
+
+                const items = await response.json();
+                window.menuItems = items; // Store globally for filtering
+                renderMenu(items);
+                setupSearch();
+            } catch (error) {
+                console.error('Error loading menu:', error);
+                // Fallback to local data
+                if (window.menuCardapioLoja) {
+                    renderMenu(window.menuCardapioLoja);
+                } else {
+                    container.innerHTML = '<p style="text-align:center; width:100%;">Erro ao carregar cardápio.</p>';
+                }
+            }
+        }
+
+        function renderMenu(items) {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum item disponível no momento.</p>';
+                return;
+            }
+
+            // Group items by category
+            const categories = {};
+            items.forEach(item => {
+                const cat = item.category || 'Outros';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push(item);
+            });
+
+            // Map category names to translations
+            const catMap = {
+                'Bolos': 'cardapio.filter.cakes',
+                'Bolo': 'cardapio.filter.cakes',
+                'Tortas': 'cardapio.filter.pies',
+                'Torta': 'cardapio.filter.pies',
+                'Cheesecakes': 'cardapio.filter.cheesecakes',
+                'Cheesecake': 'cardapio.filter.cheesecakes',
+                'Brownies': 'cardapio.filter.brownies',
+                'Brownie': 'cardapio.filter.brownies'
+            };
+
+            // Render by category
+            let index = 0;
+            const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
+
+            Object.keys(categories).forEach(categoryName => {
+                // Translate category title
+                let translatedCat = categoryName;
+                const i18nKey = catMap[categoryName];
+                if (i18nKey && translations[currentLang] && translations[currentLang][i18nKey]) {
+                    translatedCat = translations[currentLang][i18nKey];
+                }
+
+                // Add category header
+                const header = document.createElement('div');
+                header.className = 'category-section';
+                header.innerHTML = `<h3 class="category-title">${translatedCat}</h3>`;
+                container.appendChild(header);
+
+                // Add items
+                categories[categoryName].forEach(item => {
+                    const card = createCard(item, index);
+                    container.appendChild(card);
+                    index++;
+                });
+            });
+
+            // Trigger visibility animation
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach(card => card.classList.add('visible'));
+            }, 100);
+        }
+
+        function createCard(item, index) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            card.style.transitionDelay = `${Math.min(index * 0.05, 0.5)}s`;
+
+            // Determine language
+            const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
+            let name, shortDesc, fullDesc;
+
+            // Translation lookup: if item is from Supabase (no translations field),
+            // look it up in the local menuCardapioLoja dictionary by ID or Name.
+            let translationSource = item;
+            if (!item.translations && window.menuCardapioLoja) {
+                const localItem = window.menuCardapioLoja.find(li => li.id === item.id || li.name === item.name);
+                if (localItem) translationSource = localItem;
+            }
+
+            if (translationSource.translations && translationSource.translations[currentLang]) {
+                name = translationSource.translations[currentLang].name;
+                shortDesc = translationSource.translations[currentLang].shortDesc;
+                fullDesc = translationSource.translations[currentLang].fullDesc;
+            } else {
+                // Fallback to defaults (PT-BR)
+                name = item.name;
+                shortDesc = item.short_desc || item.shortDesc || '';
+                fullDesc = item.full_desc || item.fullDesc || '';
+            }
+
+            const image = item.image || 'assets/placeholder.jpg';
+            const imagePosition = item.imagePosition || 'center center';
+            const quantity = item.quantity || 0;
+            const price = item.price || "R$ 22,00";
+
+            card.innerHTML = `
+                <div class="card-image-container">
+                    <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
+                    ${quantity <= 3 && quantity > 0 ? `<span class="stock-badge">Últimas ${quantity}!</span>` : ''}
+                    <span class="card-price">${price}</span>
+                </div>
+                
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3 class="card-title">${name}</h3>
+                    </div>
+                    
+                    <p class="card-short-desc">${shortDesc}</p>
+                    
+                    <div class="card-full-details">
+                        <p style="color: var(--cafe-noir); line-height: 1.6; font-size: 0.9rem;">${fullDesc}</p>
+                    </div>
+
+                    <div class="expand-hint" data-i18n="cardapio.details">+ detalhes</div>
+                </div>
+            `;
+
+            card.addEventListener('click', (e) => {
+                toggleCard(card);
+            });
+
+            // Store original item ID/Name on the card DOM for cart logic if needed
+            card.dataset.itemId = item.id;
+            card.dataset.originalName = item.name; // Always keep the original PT name here
+
+            return card;
+        }
+
+        function toggleCard(card) {
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(c => {
+                if (c !== card && c.classList.contains('expanded')) {
+                    c.classList.remove('expanded');
+                }
+            });
+            card.classList.toggle('expanded');
+        }
+
+
+    </script>
+    <script>
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterItems(e.target.value, getActiveCategory());
+                });
+            }
+
+            // Filter buttons
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    filterItems(searchInput ? searchInput.value : '', btn.dataset.category);
+                });
+            });
+        }
+
+        function getActiveCategory() {
+            const activeBtn = document.querySelector('.filter-btn.active');
+            return activeBtn ? activeBtn.dataset.category : 'all';
+        }
+
+        function filterItems(searchTerm, category) {
+            if (!window.menuItems) return;
+
+            searchTerm = searchTerm.toLowerCase().trim();
+            const filtered = window.menuItems.filter(item => {
+                // Search match
+                const nameMatch = item.name.toLowerCase().includes(searchTerm);
+                const descMatch = (item.short_desc || item.shortDesc || '').toLowerCase().includes(searchTerm);
+                const matchesSearch = nameMatch || descMatch;
+
+                // Category match
+                const itemCat = item.category || '';
+                const matchesCategory = category === 'all' || itemCat.includes(category);
+
+                return matchesSearch && matchesCategory;
+            });
+
+            renderMenu(filtered);
+        }
+    </script>
+    </script>
+    <script src="premium.js"></script>
+    <script src="translations.js"></script>
+    <script src="language-switcher.js"></script>
+</body>
+
+</html>

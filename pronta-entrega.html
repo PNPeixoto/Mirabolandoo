@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Bolos prontos para entrega na Mirabolando Confeitaria. Compre direto e leve no ato!">
+    <title>Mirabolando - Pronta Entrega</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="premium-animations.css">
+    <style>
+        /* Pronta Entrega Specific Styles */
+        .pronta-entrega-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .quantity-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            background: var(--creme-antigo);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .quantity-info .qty {
+            font-weight: 700;
+            color: var(--vinho-profundo);
+        }
+
+        .intro-pronta {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .intro-pronta h2 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .intro-pronta h2::after {
+            display: none;
+        }
+
+        .intro-pronta p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Sold Out Styles */
+        .card.sold-out .card-img {
+            filter: grayscale(100%);
+            opacity: 0.8;
+        }
+
+        .sold-out-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .sold-out-badge-text {
+            background: #ef4444;
+            color: white;
+            padding: 0.8rem 2rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border-radius: 8px;
+            transform: rotate(-10deg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fullscreen Loading Animation -->
+    <div class="fullscreen-loader-light" id="fullscreenLoader">
+        <div class="loader-content-light">
+            <div class="loader-logo-light">
+                <img src="assets/logo-mirabolando.jpg" alt="Mirabolando" class="loader-logo-img-light">
+                <div class="loader-ring-light"></div>
+            </div>
+            <h2 class="loader-brand-light">Mirabolando</h2>
+            <p class="loader-tagline-light">Carregando delícias...</p>
+            <div class="loader-dots-light">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            setTimeout(function () {
+                var loader = document.getElementById('fullscreenLoader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    loader.style.visibility = 'hidden';
+                    loader.style.pointerEvents = 'none';
+                    setTimeout(function () {
+                        if (loader.parentNode) {
+                            loader.parentNode.removeChild(loader);
+                        }
+                    }, 600);
+                }
+            }, 3000);
+        })();
+    </script>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="customCursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-area">
+                <img src="assets/logo-mirabolando.jpg" alt="Logo Mirabolando"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.8rem; box-shadow: 0 4px 15px rgba(107, 45, 60, 0.2);">
+                <h1>Mirabolando</h1>
+                <p class="subtitle">Pronta Entrega</p>
+            </div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="cardapio.html">Cardápio</a>
+                <a href="pronta-entrega.html" class="active">Pronta Entrega</a>
+                <a href="encomenda.html">Encomendas</a>
+                <a href="cole.html">Colé</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="intro-pronta">
+            <h2>🎂 Pronta Entrega</h2>
+            <p>Bolos disponíveis agora! Compre e leve no ato.</p>
+        </div>
+
+        <!-- Warning Banner -->
+        <div class="warning-banner">
+            <strong>Atenção:</strong> Os produtos de pronta entrega são limitados e podem esgotar rapidamente. Para
+            garantir seu bolo, recomendamos fazer uma <a href="encomenda.html">encomenda antecipada</a>.
+        </div>
+
+        <!-- Search (New) -->
+        <div class="search-container" style="justify-content: center; margin-bottom: 2rem;">
+            <div class="search-input-wrapper" style="max-width: 600px;">
+                <i class="search-icon">🔍</i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar pronta entrega...">
+            </div>
+        </div>
+
+        <section class="menu-container" id="menu-container">
+            <!-- Cards gerados via JS -->
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Mirabolando Confeitaria.</p>
+            <p>Feito com amor e açúcar.</p>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadProntaEntrega();
+            hideFullscreenLoader();
+        });
+
+        function hideFullscreenLoader() {
+            const loader = document.getElementById('fullscreenLoader');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(() => {
+                    loader.remove();
+                }, 700);
+            }
+        }
+
+        setTimeout(() => {
+            hideFullscreenLoader();
+        }, 5000);
+
+        async function loadProntaEntrega() {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '<p style="text-align:center; width:100%;">Carregando bolos disponíveis...</p>';
+
+            try {
+                // Fetch from Supabase for real-time stock
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/menu_items?menu_type=eq.pronta_entrega&active=eq.true&quantity=gte.0&order=name`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+
+                if (!response.ok) throw new Error('Erro ao carregar');
+
+                let items = await response.json();
+
+                // Patch images from local data to ensure high quality assets
+                if (window.menuData) {
+                    items = items.map(apiItem => {
+                        const localItem = window.menuData.find(l => l.name === apiItem.name);
+
+                        if (localItem) {
+                            return {
+                                ...apiItem,
+                                image: localItem.image, // Use local corrected image path
+                                imagePosition: localItem.imagePosition || 'center center' // Use local positioning
+                            };
+                        }
+                        return apiItem;
+                    });
+                }
+
+                window.prontaEntregaItems = items;
+                renderMenu(items);
+                setupSearch();
+            } catch (error) {
+                console.error('Error loading pronta entrega:', error);
+                container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum bolo disponível no momento. Volte em breve!</p>';
+            }
+        }
+
+        function renderMenu(items) {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum bolo disponível no momento. Volte em breve!</p>';
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const card = createCard(item, index);
+                container.appendChild(card);
+            });
+
+            // Trigger visibility animation
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach(card => card.classList.add('visible'));
+            }, 100);
+        }
+
+        function createCard(item, index) {
+            const card = document.createElement('div');
+            const quantity = item.quantity || 0;
+            const isSoldOut = quantity === 0;
+
+            card.className = `card ${isSoldOut ? 'sold-out' : ''}`;
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            card.style.transitionDelay = `${Math.min(index * 0.05, 0.5)}s`;
+
+            const name = item.name;
+            const shortDesc = item.short_desc || item.shortDesc || '';
+            const fullDesc = item.full_desc || item.fullDesc || '';
+            const image = item.image || 'assets/placeholder.jpg';
+            const price = item.price || "R$ 0,00";
+            const imagePosition = item.imagePosition || 'center center';
+
+            // Determine badges
+            let badgesHtml = '';
+            if (isSoldOut) {
+                badgesHtml = `<div class="sold-out-overlay"><span class="sold-out-badge-text">Esgotado</span></div>`;
+            } else {
+                badgesHtml = `
+                    <span class="pronta-entrega-badge">Pronta Entrega</span>
+                    ${quantity <= 3 && quantity > 0 ? `<span class="stock-badge">Última ${quantity}!</span>` : ''}
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="card-image-container">
+                    <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
+                    ${badgesHtml}
+                </div>
+                
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3 class="card-title">${name}</h3>
+                        <span class="card-price">${price}</span>
+                    </div>
+                    
+                    <p class="card-short-desc">${shortDesc}</p>
+                    
+                    <div class="quantity-info">
+                        <span>Disponível:</span>
+                        <span class="qty">${quantity > 0 ? `${quantity} unidade${quantity > 1 ? 's' : ''}` : 'Esgotado'}</span>
+                    </div>
+                    
+                    <div class="card-full-details">
+                        <p style="color: var(--cafe-noir); line-height: 1.6; font-size: 0.9rem;">${fullDesc}</p>
+                    </div>
+
+                    <div class="expand-hint">+ detalhes</div>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                toggleCard(card);
+            });
+
+            return card;
+        }
+
+        function toggleCard(card) {
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(c => {
+                if (c !== card && c.classList.contains('expanded')) {
+                    c.classList.remove('expanded');
+                }
+            });
+            card.classList.toggle('expanded');
+        }
+    </script>
+    <script>
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterItems(e.target.value);
+                });
+            }
+        }
+
+        function filterItems(searchTerm) {
+            if (!window.prontaEntregaItems) return;
+
+            searchTerm = searchTerm.toLowerCase().trim();
+            const filtered = window.prontaEntregaItems.filter(item => {
+                const nameMatch = item.name.toLowerCase().includes(searchTerm);
+                const descMatch = (item.short_desc || '').toLowerCase().includes(searchTerm);
+                return nameMatch || descMatch;
+            });
+
+            renderMenu(filtered);
+        }
+    </script>
+    <script src="premium.js"></script>
+</body>
+
+</html>

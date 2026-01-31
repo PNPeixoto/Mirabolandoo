@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Painel Administrativo - Mirabolando Confeitaria">
+    <title>Mirabolando - Painel Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/logo-mirabolando.jpg" alt="Logo" class="sidebar-logo">
+            <h2>Mirabolando</h2>
+            <span class="badge-admin">Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <span class="nav-icon">📊</span>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item" data-section="orders">
+                <span class="nav-icon">📦</span>
+                Encomendas
+                <span class="nav-badge" id="pending-count">0</span>
+            </a>
+            <a href="#" class="nav-item" data-section="menu">
+                <span class="nav-icon">🍰</span>
+                Cardápio
+            </a>
+            <a href="#" class="nav-item" data-section="pronta-entrega">
+                <span class="nav-icon">🎂</span>
+                Pronta Entrega
+                <span class="nav-badge pronta-badge" id="stock-count">0</span>
+            </a>
+            <a href="#" class="nav-item" data-section="customers">
+                <span class="nav-icon">👥</span>
+                Clientes
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                Voltar ao Site
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <h1 id="page-title">Dashboard</h1>
+            <div class="topbar-right">
+                <span class="datetime" id="datetime"></span>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section class="content-section active" id="dashboard-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon pending">📋</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-pending">0</span>
+                        <span class="stat-label">Pendentes</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon preparing">👨‍🍳</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-preparing">0</span>
+                        <span class="stat-label">Preparando</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon ready">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-ready">0</span>
+                        <span class="stat-label">Prontos</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon total">💰</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-total">R$ 0</span>
+                        <span class="stat-label">Total Hoje</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-orders">
+                <h3>Últimas Encomendas</h3>
+                <div class="orders-list" id="recent-orders-list">
+                    <p class="empty-state">Carregando...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section class="content-section" id="orders-section">
+            <div class="section-header">
+                <h2>Encomendas</h2>
+                <div class="filter-group">
+                    <select id="status-filter" class="filter-select">
+                        <option value="">Todos os status</option>
+                        <option value="pending">Pendente</option>
+                        <option value="confirmed">Confirmado</option>
+                        <option value="preparing">Preparando</option>
+                        <option value="ready">Pronto</option>
+                        <option value="delivered">Entregue</option>
+                        <option value="cancelled">Cancelado</option>
+                    </select>
+                    <button class="btn-refresh" onclick="loadOrders()">🔄 Atualizar</button>
+                </div>
+            </div>
+
+            <div class="orders-table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Itens</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <tr>
+                            <td colspan="6" class="empty-state">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section class="content-section" id="menu-section">
+            <div class="section-header">
+                <h2>Cardápio da Loja</h2>
+                <div class="filter-group">
+                    <select id="category-filter" class="filter-select">
+                        <option value="">Todas Categorias</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="menu-grid" id="menu-grid">
+                <p class="empty-state">Carregando...</p>
+            </div>
+        </section>
+
+        <!-- Pronta Entrega Section -->
+        <section class="content-section" id="pronta-entrega-section">
+            <div class="section-header">
+                <h2>🎂 Pronta Entrega - Estoque</h2>
+                <div class="filter-group">
+                    <span class="stock-summary">
+                        <span class="stock-label">Total em estoque:</span>
+                        <strong id="total-stock">0</strong> bolos
+                    </span>
+                    <button class="btn-refresh" onclick="loadProntaEntrega()">🔄 Atualizar</button>
+                </div>
+            </div>
+
+            <div class="pronta-grid" id="pronta-grid">
+                <p class="empty-state">Carregando...</p>
+            </div>
+        </section>
+
+        <!-- Customers Section -->
+        <section class="content-section" id="customers-section">
+            <div class="section-header">
+                <h2>Clientes Cadastrados</h2>
+                <button class="btn-refresh" onclick="loadCustomers()">🔄 Atualizar</button>
+            </div>
+
+            <div class="orders-table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>WhatsApp</th>
+                            <th>Endereço</th>
+                            <th>Cadastro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-table-body">
+                        <tr>
+                            <td colspan="5" class="empty-state">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Order Detail Modal -->
+    <div class="modal" id="order-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalhes do Pedido</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="order-modal-body">
+                <!-- Conteúdo preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>
