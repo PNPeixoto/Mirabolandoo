@@ -998,11 +998,11 @@
             const imagePosition = item.imagePosition || 'center center';
             const fromPrice = item.options ? 'A partir de ' : '';
 
-            // ... (rest of card construction)
             card.innerHTML = `
                 < div class= "card-image-container" >
                     <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
                     <button class="favorite-btn" aria-label="Favoritar">♥</button>
+                    ${specialBadge}
                     <span class="card-price">${fromPrice}${price}</span>
                 </div>
                 
@@ -1014,14 +1014,14 @@
                     <p class="card-short-desc">${shortDesc}</p>
                     
                     <div class="card-full-details">
-                        <p>${fullDesc}</p>
+                        <p style="margin-bottom: 15px; color: var(--cafe-noir); line-height: 1.7;">${fullDesc}</p>
                         ${renderOptions(item)}
                     </div>
 
                     <div class="expand-hint" data-i18n="cardapio.details">+ detalhes</div>
                     
                     <div class="card-actions">
-                        <button class="add-to-cart-btn" onclick="addToCart('${item.id}')">
+                        <button class="add-to-cart-btn" onclick="addToCart(event, '${item.id}')">
                             Adicionar à Encomenda
                         </button>
                     </div>
