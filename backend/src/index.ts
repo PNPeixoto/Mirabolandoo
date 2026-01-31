@@ -125,9 +125,11 @@ app.use(errorHandler);
 // SERVER
 // ============================================
 
+let server: any;
+
 // Only listen if not running in Vercel (Vercel exports the app)
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-    const server = app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
         console.log(`
     ╔═══════════════════════════════════════════════════════╗
     ║         🍰 MIRABOLANDO BACKEND SERVER 🍰              ║
@@ -144,7 +146,6 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     // Graceful shutdown
     process.on('SIGINT', () => {
         console.log('\n🛑 Shutting down gracefully...');
-        // closeDatabase(); // Supabase client handles this
         server.close(() => {
             console.log('✅ Server closed');
             process.exit(0);
@@ -152,15 +153,17 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     });
 }
 
-export default app;
-
 process.on('SIGTERM', () => {
     console.log('\n🛑 SIGTERM received, shutting down...');
     closeDatabase();
-    server.close(() => {
-        console.log('✅ Server closed');
+    if (server) {
+        server.close(() => {
+            console.log('✅ Server closed');
+            process.exit(0);
+        });
+    } else {
         process.exit(0);
-    });
+    }
 });
 
 // Handle uncaught exceptions
