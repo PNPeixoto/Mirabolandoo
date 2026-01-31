@@ -937,19 +937,9 @@
         // ============================================
 
         function renderMenu(items) {
-            const container = document.getElementById('menu-container');
-            container.innerHTML = '';
-
-            if (items.length === 0) {
-                container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum item encontrado.</p>';
-                return;
-            }
-
-            items.forEach((item, index) => {
-                const card = createCard(item, index);
-                container.appendChild(card);
-            });
+            window.SharedUI.renderMenu(items, 'menu-container', { type: 'encomenda', addToCartFn: 'addToCart' });
         }
+
 
         function createCard(item, index) {
             const card = document.createElement('div');
@@ -1036,15 +1026,7 @@
             return card;
         }
 
-        function toggleCard(card) {
-            const allCards = document.querySelectorAll('.card');
-            allCards.forEach(c => {
-                if (c !== card && c.classList.contains('expanded')) {
-                    c.classList.remove('expanded');
-                }
-            });
-            card.classList.toggle('expanded');
-        }
+
 
         // ============================================
         // CART FUNCTIONS
