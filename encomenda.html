@@ -597,19 +597,19 @@
 
         <div class="filters-container" id="filtersContainer">
             <button class="filter-btn active" data-category="all">
-                <span class="filter-icon">✨</span> Todos
+                <span class="filter-icon">✨</span> <span data-i18n="cardapio.filter.all">Todos</span>
             </button>
-            <button class="filter-btn" data-category="Bolo">
-                <span class="filter-icon">🎂</span> Bolos
+            <button class="filter-btn" data-category="Bolos">
+                <span class="filter-icon">🎂</span> <span data-i18n="cardapio.filter.cakes">Bolos</span>
             </button>
-            <button class="filter-btn" data-category="Torta">
-                <span class="filter-icon">🥧</span> Tortas
+            <button class="filter-btn" data-category="Tortas">
+                <span class="filter-icon">🥧</span> <span data-i18n="cardapio.filter.pies">Tortas</span>
             </button>
-            <button class="filter-btn" data-category="Cheesecake">
-                <span class="filter-icon">🍰</span> Cheesecakes
+            <button class="filter-btn" data-category="Cheesecakes">
+                <span class="filter-icon">🍰</span> <span data-i18n="cardapio.filter.cheesecakes">Cheesecakes</span>
             </button>
-            <button class="filter-btn" data-category="Brownie">
-                <span class="filter-icon">🍫</span> Brownies
+            <button class="filter-btn" data-category="Brownies">
+                <span class="filter-icon">🍫</span> <span data-i18n="cardapio.filter.brownies">Brownies</span>
             </button>
         </div>
 
@@ -966,46 +966,65 @@
                         <p>Escolha o tamanho:</p>
                         ${item.options.map((opt, idx) => `
                             <label class="size-option-label" onclick="event.stopPropagation()">
-                                <div>
-                                    <input type="radio" name="size-${item.id}" value="${opt.price}" data-size="${opt.size}" ${idx === 0 ? 'checked' : ''}>
-                                    <span class="size-name">${opt.size}</span>
-                                </div>
-                                <span class="size-price">${opt.price}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                `;
+            card.dataset.category = item.category;
+            card.dataset.itemId = item.id;
+            card.style.transitionDelay = `${ Math.min(index * 0.05, 0.5) }s`;
+
+            // Translation Logic
+            const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
+            let name = item.name;
+            let shortDesc = item.short_desc || item.shortDesc || '';
+            let fullDesc = item.full_desc || item.fullDesc || '';
+
+            // Try to find translations in local data if item is from API
+            // Note: The caller (loadProntaEntrega/renderMenu) might have already merged local data, 
+            // but let's be safe. If 'item' itself has 'translations', use it.
+            if (item.translations && item.translations[currentLang]) {
+                name = item.translations[currentLang].name;
+                shortDesc = item.translations[currentLang].shortDesc;
+                fullDesc = item.translations[currentLang].fullDesc;
+            } else if (window.menuCardapioLoja) {
+                 // Fallback: look up in local data by ID
+                 const localItem = window.menuCardapioLoja.find(l => l.id === item.id);
+                 if (localItem && localItem.translations && localItem.translations[currentLang]) {
+                    name = localItem.translations[currentLang].name;
+                    shortDesc = localItem.translations[currentLang].shortDesc;
+                    fullDesc = localItem.translations[currentLang].fullDesc;
+                 }
             }
 
-            // Special badge for Christmas items
-            const specialBadge = item.category === 'Natal' ?
-                '<span style="position:absolute; top:15px; right:15px; background: linear-gradient(135deg, #6B2D3C, #8B3D4F); color:white; padding:8px 16px; border-radius:30px; font-size:0.75rem; font-weight:600; letter-spacing: 1px; text-transform: uppercase;">Natal</span>' : '';
+            const image = item.image || 'assets/placeholder.jpg';
+            const price = item.price || "Consulte";
+            const imagePosition = item.imagePosition || 'center center';
+            const fromPrice = item.options ? 'A partir de ' : '';
 
+            // ... (rest of card construction)
             card.innerHTML = `
-                <div class="card-image-container">
-                    <img src="${item.image}" alt="${item.name}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=Mirabolando'">
-                    ${specialBadge}
-                    <span class="card-price" id="price-${item.id}">${item.price}</span>
+                < div class= "card-image-container" >
+                    <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
+                    <button class="favorite-btn" aria-label="Favoritar">♥</button>
+                    <span class="card-price">${fromPrice}${price}</span>
                 </div>
                 
                 <div class="card-content">
                     <div class="card-header">
-                        <h3 class="card-title">${item.name}</h3>
+                        <h3 class="card-title">${name}</h3>
                     </div>
                     
-                    <p class="card-short-desc">${item.shortDesc}</p>
+                    <p class="card-short-desc">${shortDesc}</p>
                     
                     <div class="card-full-details">
-                        <p style="margin-bottom: 15px; color: var(--cafe-noir); line-height: 1.7;">${item.fullDesc}</p>
-                        
-                        ${optionsHtml}
-
-                        <button class="btn-order" onclick="addToCart(event, '${item.id}')">
-                            <span>🛒</span> Adicionar
-                        </button>
+                        <p>${fullDesc}</p>
+                        ${renderOptions(item)}
                     </div>
 
-                    <div class="expand-hint">Toque para ver detalhes</div>
+                    <div class="expand-hint" data-i18n="cardapio.details">+ detalhes</div>
+                    
+                    <div class="card-actions">
+                        <button class="add-to-cart-btn" onclick="addToCart('${item.id}')">
+                            Adicionar à Encomenda
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -1092,8 +1111,8 @@
                 itemsEl.innerHTML = '<p class="cart-empty">Seu carrinho está vazio</p>';
             } else {
                 itemsEl.innerHTML = cart.map((item, index) => `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=🍰'">
+                    < div class= "cart-item" >
+                    <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=🍰'">
                         <div class="cart-item-info">
                             <div class="cart-item-name">${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ''}</div>
                             ${item.option ? `<div class="cart-item-option">${item.option}</div>` : ''}
@@ -1110,7 +1129,7 @@
                 return sum + (parseFloat(priceStr) * item.quantity);
             }, 0);
 
-            totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            totalEl.textContent = `R$ ${ total.toFixed(2).replace('.', ',') }`;
         }
 
         function toggleCart() {
@@ -1188,7 +1207,7 @@
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.className = `toast show ${type}`;
+            toast.className = `toast show ${ type }`;
 
             setTimeout(() => {
                 toast.classList.remove('show');

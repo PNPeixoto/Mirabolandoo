@@ -315,12 +315,32 @@
             card.setAttribute('tabindex', '0');
             card.style.transitionDelay = `${Math.min(index * 0.05, 0.5)}s`;
 
-            const name = item.name;
-            const shortDesc = item.short_desc || item.shortDesc || '';
-            const fullDesc = item.full_desc || item.fullDesc || '';
+            // Translation Logic
+            const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
+            let name = item.name;
+            let shortDesc = item.short_desc || item.shortDesc || '';
+            let fullDesc = item.full_desc || item.fullDesc || '';
+
+            // Translation fallback logic
+            if (item.translations && item.translations[currentLang]) {
+                name = item.translations[currentLang].name;
+                shortDesc = item.translations[currentLang].shortDesc;
+                fullDesc = item.translations[currentLang].fullDesc;
+            } else if (window.menuCardapioLoja) {
+                const localItem = window.menuCardapioLoja.find(l => l.id === item.id);
+                if (localItem && localItem.translations && localItem.translations[currentLang]) {
+                    name = localItem.translations[currentLang].name;
+                    shortDesc = localItem.translations[currentLang].shortDesc;
+                    fullDesc = localItem.translations[currentLang].fullDesc;
+                }
+            }
+
             const image = item.image || 'assets/placeholder.jpg';
             const price = item.price || "R$ 0,00";
             const imagePosition = item.imagePosition || 'center center';
+            const stockText = (translations && translations[currentLang] && translations[currentLang]['cardapio.stock'])
+                ? translations[currentLang]['cardapio.stock'].replace('{quantity}', quantity)
+                : `Última ${quantity}!`;
 
             // Determine badges
             let badgesHtml = '';
@@ -328,8 +348,8 @@
                 badgesHtml = `<div class="sold-out-overlay"><span class="sold-out-badge-text">Esgotado</span></div>`;
             } else {
                 badgesHtml = `
-                    <span class="pronta-entrega-badge">Pronta Entrega</span>
-                    ${quantity <= 3 && quantity > 0 ? `<span class="stock-badge">Última ${quantity}!</span>` : ''}
+                    <span class="pronta-entrega-badge" data-i18n="nav.pronta_entrega">Pronta Entrega</span>
+                    ${quantity <= 3 && quantity > 0 ? `<span class="stock-badge">${stockText}</span>` : ''}
                 `;
             }
 
@@ -356,7 +376,7 @@
                         <p style="color: var(--cafe-noir); line-height: 1.6; font-size: 0.9rem;">${fullDesc}</p>
                     </div>
 
-                    <div class="expand-hint">+ detalhes</div>
+                    <div class="expand-hint" data-i18n="cardapio.details">+ detalhes</div>
                 </div>
             `;
 
