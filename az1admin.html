@@ -9,7 +9,48 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="az1admin.css">
+
+    <!-- Auth Protection - Must load first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
+
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Authentication Check - Runs immediately
+        (async function checkAuth() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+                // No session or error - redirect to login
+                if (!session || error) {
+                    console.log('No valid session, redirecting to login');
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+
+                // Optional: Check if user is admin (you can customize this)
+                // For now, any authenticated user can access
+                // To restrict further, add admin email check:
+                /*
+                const adminEmails = ['admin@mirabolando.com'];
+                if (!adminEmails.includes(session.user.email)) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                */
+
+                console.log('Admin authenticated:', session.user.email);
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                window.location.href = 'admin-login.html';
+            }
+        })();
+    </script>
 </head>
 
 <body>
@@ -47,6 +88,10 @@
         </nav>
 
         <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn">
+                <span class="nav-icon">🚪</span>
+                Sair
+            </a>
             <a href="index.html" class="nav-item">
                 <span class="nav-icon">🏠</span>
                 Voltar ao Site
@@ -225,7 +270,28 @@
         <span id="toast-message"></span>
     </div>
 
-    <script src="admin.js"></script>
+    <script>
+        // Logout Handler - Must be after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+
+                    if (confirm('Tem certeza que deseja sair?')) {
+                        try {
+                            await supabaseClient.auth.signOut();
+                            window.location.href = 'az1admin-login.html';
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                            alert('Erro ao fazer logout. Tente novamente.');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="az1admin.js"></script>
 </body>
 
 </html>
