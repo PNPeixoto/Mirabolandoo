@@ -19,7 +19,9 @@ let isLoading = false;
 // INITIALIZATION
 // ============================================
 
-document.addEventListener('DOMContentLoaded', async () => {
+// Initialize when DOM is ready (handles case where DOMContentLoaded already fired)
+async function initAdmin() {
+    console.log('Initializing admin panel...');
     initNavigation();
     updateDateTime();
     setInterval(updateDateTime, 60000);
@@ -36,7 +38,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Hide fullscreen loader with a smooth animation
     hideFullscreenLoader();
-});
+    console.log('Admin panel initialized successfully');
+}
+
+// Check if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdmin);
+} else {
+    // DOM already loaded, run immediately
+    initAdmin();
+}
 
 // ============================================
 // LOADING STATE MANAGEMENT
@@ -141,10 +152,14 @@ function initNavigation() {
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
 
+    console.log('initNavigation: Found', navItems.length, 'nav items');
+
     navItems.forEach(item => {
+        console.log('Adding click listener to:', item.dataset.section);
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const section = item.dataset.section;
+            console.log('Nav clicked:', section);
             switchSection(section);
 
             // Close sidebar on mobile
