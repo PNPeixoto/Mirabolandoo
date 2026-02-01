@@ -678,6 +678,21 @@
             renderMenu(window.menuData);
             setupSearchAndFilters();
             setupInputMasks();
+
+            // Listen for language changes to re-render cards
+            window.addEventListener('languageChanged', () => {
+                const searchTerm = document.getElementById('searchInput').value;
+                const activeCategory = getActiveCategory();
+                filterItems(searchTerm, activeCategory);
+            });
+
+            // Re-render once languageManager is initialized
+            // This ensures cards display in the correct language on first load
+            setTimeout(() => {
+                if (window.languageManager) {
+                    renderMenu(window.menuData);
+                }
+            }, 100);
         });
 
         // ============================================
@@ -941,92 +956,6 @@
         }
 
 
-        function createCard(item, index) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.setAttribute('role', 'button');
-            card.setAttribute('tabindex', '0');
-            card.style.animationDelay = `${index * 0.1}s`;
-
-            // Render options if they exist
-            let optionsHtml = '';
-            if (item.options && item.options.length > 0) {
-                optionsHtml = `
-                    <div class="size-options">
-                        <p>Escolha o tamanho:</p>
-                        ${item.options.map((opt, idx) => `
-                            <label class="size-option-label" onclick="event.stopPropagation()">
-            card.dataset.category = item.category;
-            card.dataset.itemId = item.id;
-            card.style.transitionDelay = `${ Math.min(index * 0.05, 0.5) }s`;
-
-            // Translation Logic
-            const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
-            let name = item.name;
-            let shortDesc = item.short_desc || item.shortDesc || '';
-            let fullDesc = item.full_desc || item.fullDesc || '';
-
-            // Try to find translations in local data if item is from API
-            // Note: The caller (loadProntaEntrega/renderMenu) might have already merged local data, 
-            // but let's be safe. If 'item' itself has 'translations', use it.
-            if (item.translations && item.translations[currentLang]) {
-                name = item.translations[currentLang].name;
-                shortDesc = item.translations[currentLang].shortDesc;
-                fullDesc = item.translations[currentLang].fullDesc;
-            } else if (window.menuCardapioLoja) {
-                 // Fallback: look up in local data by ID
-                 const localItem = window.menuCardapioLoja.find(l => l.id === item.id);
-                 if (localItem && localItem.translations && localItem.translations[currentLang]) {
-                    name = localItem.translations[currentLang].name;
-                    shortDesc = localItem.translations[currentLang].shortDesc;
-                    fullDesc = localItem.translations[currentLang].fullDesc;
-                 }
-            }
-
-            const image = item.image || 'assets/placeholder.jpg';
-            const price = item.price || "Consulte";
-            const imagePosition = item.imagePosition || 'center center';
-            const fromPrice = item.options ? 'A partir de ' : '';
-
-            card.innerHTML = `
-                < div class= "card-image-container" >
-                    <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
-                    <button class="favorite-btn" aria-label="Favoritar">♥</button>
-                    ${specialBadge}
-                    <span class="card-price">${fromPrice}${price}</span>
-                </div>
-                
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3 class="card-title">${name}</h3>
-                    </div>
-                    
-                    <p class="card-short-desc">${shortDesc}</p>
-                    
-                    <div class="card-full-details">
-                        <p style="margin-bottom: 15px; color: var(--cafe-noir); line-height: 1.7;">${fullDesc}</p>
-                        ${renderOptions(item)}
-                    </div>
-
-                    <div class="expand-hint" data-i18n="cardapio.details">+ detalhes</div>
-                    
-                    <div class="card-actions">
-                        <button class="add-to-cart-btn" onclick="addToCart(event, '${item.id}')">
-                            Adicionar à Encomenda
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.size-option-label') || e.target.closest('.btn-order')) return;
-                toggleCard(card);
-            });
-
-            return card;
-        }
-
-
 
         // ============================================
         // CART FUNCTIONS
@@ -1111,7 +1040,7 @@
                 return sum + (parseFloat(priceStr) * item.quantity);
             }, 0);
 
-            totalEl.textContent = `R$ ${ total.toFixed(2).replace('.', ',') }`;
+            totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
         }
 
         function toggleCart() {
@@ -1189,7 +1118,7 @@
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.className = `toast show ${ type }`;
+            toast.className = `toast show ${type}`;
 
             setTimeout(() => {
                 toast.classList.remove('show');

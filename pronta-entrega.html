@@ -214,6 +214,7 @@
 
     <script src="translations.js"></script>
     <script src="data-cardapio.js"></script>
+    <script src="shared-ui.js"></script>
     <script src="language-switcher.js"></script>
     <script src="data.js"></script>
     <script>
@@ -224,6 +225,18 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await loadProntaEntrega();
             hideFullscreenLoader();
+
+            // Listen for language changes to re-render cards
+            window.addEventListener('languageChanged', async () => {
+                await loadProntaEntrega();
+            });
+
+            // Re-render once languageManager is initialized
+            setTimeout(async () => {
+                if (window.languageManager) {
+                    await loadProntaEntrega();
+                }
+            }, 100);
         });
 
         function hideFullscreenLoader() {
@@ -260,16 +273,17 @@
 
                 let items = await response.json();
 
-                // Patch images from local data to ensure high quality assets
-                if (window.menuData) {
+                // Patch images and translations from local data
+                if (window.menuCardapioLoja) {
                     items = items.map(apiItem => {
-                        const localItem = window.menuData.find(l => l.name === apiItem.name);
+                        const localItem = window.menuCardapioLoja.find(l => l.id === apiItem.id || l.name === apiItem.name);
 
                         if (localItem) {
                             return {
                                 ...apiItem,
                                 image: localItem.image, // Use local corrected image path
-                                imagePosition: localItem.imagePosition || 'center center' // Use local positioning
+                                imagePosition: localItem.imagePosition || 'center center', // Use local positioning
+                                translations: localItem.translations // Add translations from local data
                             };
                         }
                         return apiItem;
@@ -286,107 +300,22 @@
         }
 
         function renderMenu(items) {
-            const container = document.getElementById('menu-container');
-            container.innerHTML = '';
-
-            if (items.length === 0) {
-                container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum bolo disponível no momento. Volte em breve!</p>';
-                return;
-            }
-
-            items.forEach((item, index) => {
-                const card = createCard(item, index);
-                container.appendChild(card);
-            });
-
-            // Trigger visibility animation
-            setTimeout(() => {
-                document.querySelectorAll('.card').forEach(card => card.classList.add('visible'));
-            }, 100);
-        }
-
-        function createCard(item, index) {
-            const card = document.createElement('div');
-            const quantity = item.quantity || 0;
-            const isSoldOut = quantity === 0;
-
-            card.className = `card ${isSoldOut ? 'sold-out' : ''}`;
-            card.setAttribute('role', 'button');
-            card.setAttribute('tabindex', '0');
-            card.style.transitionDelay = `${Math.min(index * 0.05, 0.5)}s`;
-
-            // Translation Logic
-            const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
-            let name = item.name;
-            let shortDesc = item.short_desc || item.shortDesc || '';
-            let fullDesc = item.full_desc || item.fullDesc || '';
-
-            // Translation fallback logic
-            if (item.translations && item.translations[currentLang]) {
-                name = item.translations[currentLang].name;
-                shortDesc = item.translations[currentLang].shortDesc;
-                fullDesc = item.translations[currentLang].fullDesc;
-            } else if (window.menuCardapioLoja) {
-                const localItem = window.menuCardapioLoja.find(l => l.id === item.id);
-                if (localItem && localItem.translations && localItem.translations[currentLang]) {
-                    name = localItem.translations[currentLang].name;
-                    shortDesc = localItem.translations[currentLang].shortDesc;
-                    fullDesc = localItem.translations[currentLang].fullDesc;
-                }
-            }
-
-            const image = item.image || 'assets/placeholder.jpg';
-            const price = item.price || "R$ 0,00";
-            const imagePosition = item.imagePosition || 'center center';
-            const stockText = (translations && translations[currentLang] && translations[currentLang]['cardapio.stock'])
-                ? translations[currentLang]['cardapio.stock'].replace('{quantity}', quantity)
-                : `Última ${quantity}!`;
-
-            // Determine badges
-            let badgesHtml = '';
-            if (isSoldOut) {
-                badgesHtml = `<div class="sold-out-overlay"><span class="sold-out-badge-text">Esgotado</span></div>`;
+            if (window.SharedUI) {
+                SharedUI.renderMenu(items, 'menu-container', {
+                    type: 'pronta_entrega',
+                    showQuantity: true
+                });
             } else {
-                badgesHtml = `
-                    <span class="pronta-entrega-badge" data-i18n="nav.pronta_entrega">Pronta Entrega</span>
-                    ${quantity <= 3 && quantity > 0 ? `<span class="stock-badge">${stockText}</span>` : ''}
-                `;
+                console.error('SharedUI not loaded');
             }
-
-            card.innerHTML = `
-                <div class="card-image-container">
-                    <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
-                    ${badgesHtml}
-                </div>
-                
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3 class="card-title">${name}</h3>
-                        <span class="card-price">${price}</span>
-                    </div>
-                    
-                    <p class="card-short-desc">${shortDesc}</p>
-                    
-                    <div class="quantity-info">
-                        <span>Disponível:</span>
-                        <span class="qty">${quantity > 0 ? `${quantity} unidade${quantity > 1 ? 's' : ''}` : 'Esgotado'}</span>
-                    </div>
-                    
-                    <div class="card-full-details">
-                        <p style="color: var(--cafe-noir); line-height: 1.6; font-size: 0.9rem;">${fullDesc}</p>
-                    </div>
-
-                    <div class="expand-hint" data-i18n="cardapio.details">+ detalhes</div>
-                </div>
-            `;
-
-            card.addEventListener('click', () => {
-                toggleCard(card);
-            });
-
-            return card;
         }
 
+
+        // createCard and toggleCard functions now handled by SharedUI
+
+
+        // Using SharedUI.toggleCard instead
+        /*
         function toggleCard(card) {
             const allCards = document.querySelectorAll('.card');
             allCards.forEach(c => {
@@ -396,6 +325,7 @@
             });
             card.classList.toggle('expanded');
         }
+        */
     </script>
     <script>
         function setupSearch() {
@@ -420,7 +350,6 @@
             renderMenu(filtered);
         }
     </script>
-    <script src="shared-ui.js"></script>
     <script src="premium.js"></script>
 </body>
 
