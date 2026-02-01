@@ -29,7 +29,7 @@
                 // No session or error - redirect to login
                 if (!session || error) {
                     console.log('No valid session, redirecting to login');
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'az1admin-login.html';
                     return;
                 }
 
@@ -47,7 +47,7 @@
                 console.log('Admin authenticated:', session.user.email);
             } catch (err) {
                 console.error('Auth check failed:', err);
-                window.location.href = 'admin-login.html';
+                window.location.href = 'az1admin-login.html';
             }
         })();
     </script>
