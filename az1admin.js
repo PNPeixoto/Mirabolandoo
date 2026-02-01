@@ -1,9 +1,10 @@
 /* ============================================
    ADMIN PANEL - MIRABOLANDO CONFEITARIA
-   JavaScript - Supabase Integration
+   JavaScript - Supabase Integration (CORRIGIDO)
    ============================================ */
 
 // Supabase Configuration
+// Nota: O client já foi inicializado no HTML (supabaseClient), vamos reutilizá-lo ou usar as constantes.
 const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
 
@@ -13,13 +14,11 @@ let orders = [];
 let menuItems = [];
 let prontaEntregaItems = [];
 let customers = [];
-let isLoading = false;
 
 // ============================================
 // INITIALIZATION
 // ============================================
 
-// Initialize when DOM is ready (handles case where DOMContentLoaded already fired)
 async function initAdmin() {
     console.log('Initializing admin panel...');
     initNavigation();
@@ -27,100 +26,55 @@ async function initAdmin() {
     setInterval(updateDateTime, 60000);
     initLoadingStates();
 
-    // Load all data and then hide the fullscreen loader
-    await Promise.all([
-        loadDashboard(),
-        loadOrders(),
-        loadMenuItems(),
-        loadProntaEntrega(),
-        loadCustomers()
-    ]);
+    // Importante: Aguardar verificar se o supabaseClient do HTML está pronto
+    if (typeof supabaseClient === 'undefined') {
+        console.error('Supabase Client não encontrado no HTML');
+        return;
+    }
 
-    // Hide fullscreen loader with a smooth animation
+    try {
+        await Promise.all([
+            loadDashboard(),
+            loadOrders(),
+            loadMenuItems(),
+            loadProntaEntrega(),
+            loadCustomers()
+        ]);
+        console.log('Todos os dados carregados.');
+    } catch (e) {
+        console.error('Erro ao carregar dados iniciais:', e);
+    }
+
     hideFullscreenLoader();
-    console.log('Admin panel initialized successfully');
 }
 
-// Check if DOM is already loaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAdmin);
 } else {
-    // DOM already loaded, run immediately
     initAdmin();
 }
 
 // ============================================
-// LOADING STATE MANAGEMENT
-// ============================================
-
-function initLoadingStates() {
-    // Add loading class to body for initial load
-    document.body.classList.add('loading');
-}
-
-function showLoadingState(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    const skeletonHTML = `
-        <div class="skeleton-loader">
-            <div class="skeleton-card">
-                <div class="skeleton-img"></div>
-                <div class="skeleton-content">
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line short"></div>
-                </div>
-            </div>
-            <div class="skeleton-card">
-                <div class="skeleton-img"></div>
-                <div class="skeleton-content">
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line short"></div>
-                </div>
-            </div>
-            <div class="skeleton-card">
-                <div class="skeleton-img"></div>
-                <div class="skeleton-content">
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line short"></div>
-                </div>
-            </div>
-        </div>
-    `;
-    container.innerHTML = skeletonHTML;
-}
-
-function hideLoadingState() {
-    document.body.classList.remove('loading');
-}
-
-function hideFullscreenLoader() {
-    const loader = document.getElementById('fullscreenLoader');
-    if (loader) {
-        // Add hidden class for fade out animation
-        loader.classList.add('hidden');
-
-        // Remove loader completely from DOM after animation
-        setTimeout(() => {
-            loader.remove();
-        }, 700);
-    }
-}
-
-// Fallback: Hide loader after max 5 seconds even if data hasn't loaded
-setTimeout(() => {
-    hideFullscreenLoader();
-}, 5000);
-
-// ============================================
-// SUPABASE API HELPERS
+// SUPABASE API HELPERS (CORRIGIDO)
 // ============================================
 
 async function supabaseRequest(endpoint, options = {}) {
     const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+    
+    // CORREÇÃO PRINCIPAL: Pega o token da sessão atual
+    let token = SUPABASE_ANON_KEY;
+    try {
+        const { data } = await supabaseClient.auth.getSession();
+        if (data?.session?.access_token) {
+            token = data.session.access_token;
+        }
+    } catch (e) {
+        console.warn('Não foi possível obter sessão do usuário, usando anon key');
+    }
+
     const headers = {
         'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Authorization': `Bearer ${token}`, // Usa o token do usuário logado
         'Content-Type': 'application/json',
         'Prefer': options.prefer || 'return=representation'
     };
@@ -132,16 +86,37 @@ async function supabaseRequest(endpoint, options = {}) {
         });
 
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+            const errText = await response.text();
+            throw new Error(`API Error ${response.status}: ${errText}`);
         }
 
         const data = await response.json();
         return { success: true, data };
     } catch (error) {
         console.error('Supabase request error:', error);
+        showToast('Erro de conexão: ' + error.message, 'error');
         return { success: false, error: error.message };
     }
 }
+
+// ============================================
+// LOADING & UI STATES
+// ============================================
+
+function initLoadingStates() {
+    document.body.classList.add('loading');
+}
+
+function hideFullscreenLoader() {
+    const loader = document.getElementById('fullscreenLoader');
+    if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 700);
+    }
+}
+
+// Fallback de segurança
+setTimeout(() => hideFullscreenLoader(), 5000);
 
 // ============================================
 // NAVIGATION
@@ -152,53 +127,32 @@ function initNavigation() {
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
 
-    console.log('initNavigation: Found', navItems.length, 'nav items');
-
     navItems.forEach(item => {
-        console.log('Adding click listener to:', item.dataset.section);
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const section = item.dataset.section;
-            console.log('Nav clicked:', section);
             switchSection(section);
-
-            // Close sidebar on mobile
-            if (window.innerWidth <= 1024) {
+            if (window.innerWidth <= 1024 && sidebar) {
                 sidebar.classList.remove('open');
             }
         });
     });
 
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-    });
-
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 1024 &&
-            !sidebar.contains(e.target) &&
-            !menuToggle.contains(e.target)) {
-            sidebar.classList.remove('open');
-        }
-    });
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
 }
 
 function switchSection(section) {
     currentSection = section;
-
-    // Update nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
-
-    // Update sections
-    document.querySelectorAll('.content-section').forEach(sec => {
-        sec.classList.remove('active');
-    });
+    
+    document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
     document.getElementById(`${section}-section`)?.classList.add('active');
 
-    // Update title
     const titles = {
         dashboard: 'Dashboard',
         orders: 'Encomendas',
@@ -206,52 +160,61 @@ function switchSection(section) {
         'pronta-entrega': 'Pronta Entrega',
         customers: 'Clientes'
     };
-    document.getElementById('page-title').textContent = titles[section] || section;
+    const titleEl = document.getElementById('page-title');
+    if(titleEl) titleEl.textContent = titles[section] || section;
 }
 
 function updateDateTime() {
-    const now = new Date();
-    const options = {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    document.getElementById('datetime').textContent = now.toLocaleDateString('pt-BR', options);
+    const el = document.getElementById('datetime');
+    if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleDateString('pt-BR', {
+            weekday: 'long', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+    }
 }
 
 // ============================================
-// DASHBOARD
+// DASHBOARD LOGIC
 // ============================================
 
 async function loadDashboard() {
-    await loadOrders();
-    updateStats();
-    renderRecentOrders();
+    // Não chama loadOrders aqui para evitar chamada duplicada, 
+    // pois initAdmin já chama loadOrders em paralelo.
+    updateStats(); 
+    // Renderiza orders recentes se já tivermos orders, senão espera o loadOrders terminar
 }
 
 function updateStats() {
+    if(!orders) return;
+    
     const pending = orders.filter(o => o.status === 'pending').length;
     const preparing = orders.filter(o => o.status === 'preparing').length;
     const ready = orders.filter(o => o.status === 'ready').length;
 
-    // Total de hoje
     const today = new Date().toISOString().split('T')[0];
     const todayOrders = orders.filter(o => o.created_at?.startsWith(today));
     const todayTotal = todayOrders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
 
-    document.getElementById('stat-pending').textContent = pending;
-    document.getElementById('stat-preparing').textContent = preparing;
-    document.getElementById('stat-ready').textContent = ready;
-    document.getElementById('stat-total').textContent = `R$ ${todayTotal.toFixed(2).replace('.', ',')}`;
-    document.getElementById('pending-count').textContent = pending;
+    setText('stat-pending', pending);
+    setText('stat-preparing', preparing);
+    setText('stat-ready', ready);
+    setText('stat-total', `R$ ${todayTotal.toFixed(2).replace('.', ',')}`);
+    setText('pending-count', pending);
+    
+    renderRecentOrders();
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
 }
 
 function renderRecentOrders() {
     const container = document.getElementById('recent-orders-list');
-    const recent = orders.slice(0, 5);
+    if(!container) return;
 
+    const recent = orders.slice(0, 5);
     if (recent.length === 0) {
         container.innerHTML = '<p class="empty-state">Nenhuma encomenda ainda</p>';
         return;
@@ -260,8 +223,8 @@ function renderRecentOrders() {
     container.innerHTML = recent.map(order => `
         <div class="order-item" onclick="viewOrder('${order.id}')">
             <div class="order-info">
-                <div class="order-customer">${order.customer_name}</div>
-                <div class="order-details">${formatItems(order.items)} • ${formatDate(order.created_at)}</div>
+                <div class="order-customer">${order.customer_name || 'Cliente'}</div>
+                <div class="order-details">${formatItems(order.items)}</div>
             </div>
             <span class="status-badge status-${order.status}">${translateStatus(order.status)}</span>
             <span class="order-total">R$ ${parseFloat(order.total).toFixed(2).replace('.', ',')}</span>
@@ -270,32 +233,27 @@ function renderRecentOrders() {
 }
 
 // ============================================
-// ORDERS
+// ORDERS LOGIC
 // ============================================
 
 async function loadOrders() {
     const statusFilter = document.getElementById('status-filter')?.value;
     let endpoint = 'orders?order=created_at.desc';
-
-    if (statusFilter) {
-        endpoint += `&status=eq.${statusFilter}`;
-    }
+    if (statusFilter) endpoint += `&status=eq.${statusFilter}`;
 
     const result = await supabaseRequest(endpoint);
-
     if (result.success) {
         orders = result.data;
         renderOrdersTable();
-        updateStats();
-    } else {
-        showToast('Erro ao carregar encomendas', 'error');
+        updateStats(); // Atualiza stats com novos dados
     }
 }
 
 function renderOrdersTable() {
     const tbody = document.getElementById('orders-table-body');
+    if(!tbody) return;
 
-    if (orders.length === 0) {
+    if (!orders || orders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma encomenda encontrada</td></tr>';
         return;
     }
@@ -329,15 +287,15 @@ function renderOrdersTable() {
 async function updateOrderStatus(orderId, newStatus) {
     const result = await supabaseRequest(`orders?id=eq.${orderId}`, {
         method: 'PATCH',
-        body: JSON.stringify({
-            status: newStatus,
-            updated_at: new Date().toISOString()
-        })
+        body: JSON.stringify({ status: newStatus, updated_at: new Date().toISOString() })
     });
 
     if (result.success) {
         showToast(`Status atualizado para: ${translateStatus(newStatus)}`);
-        loadOrders();
+        // Atualiza array local para refletir mudança sem recarregar tudo
+        const order = orders.find(o => o.id === orderId);
+        if(order) order.status = newStatus;
+        updateStats();
     } else {
         showToast('Erro ao atualizar status', 'error');
     }
@@ -351,93 +309,63 @@ function viewOrder(orderId) {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
 
     modalBody.innerHTML = `
+        <div class="modal-row"><span class="modal-label">Cliente</span><span class="modal-value">${order.customer_name}</span></div>
+        <div class="modal-row"><span class="modal-label">WhatsApp</span><span class="modal-value">${order.customer_phone}</span></div>
+        <div class="modal-row"><span class="modal-label">Endereço</span><span class="modal-value">${order.delivery_address || 'Retirada'}</span></div>
         <div class="modal-row">
-            <span class="modal-label">Cliente</span>
-            <span class="modal-value">${order.customer_name}</span>
+             <span class="modal-label">Status</span>
+             <span class="modal-value"><span class="status-badge status-${order.status}">${translateStatus(order.status)}</span></span>
         </div>
-        <div class="modal-row">
-            <span class="modal-label">WhatsApp</span>
-            <span class="modal-value">${order.customer_phone}</span>
-        </div>
-        ${order.customer_cpf ? `
-        <div class="modal-row">
-            <span class="modal-label">CPF</span>
-            <span class="modal-value">${order.customer_cpf}</span>
-        </div>
-        ` : ''}
-        <div class="modal-row">
-            <span class="modal-label">Endereço</span>
-            <span class="modal-value">${order.delivery_address || 'Retirada na loja'}</span>
-        </div>
-        <div class="modal-row">
-            <span class="modal-label">Status</span>
-            <span class="modal-value"><span class="status-badge status-${order.status}">${translateStatus(order.status)}</span></span>
-        </div>
-        <div class="modal-row">
-            <span class="modal-label">Total</span>
-            <span class="modal-value" style="color: var(--accent-gold); font-size: 1.25rem;">R$ ${parseFloat(order.total).toFixed(2).replace('.', ',')}</span>
-        </div>
-        ${order.notes ? `
-        <div class="modal-row">
-            <span class="modal-label">Observações</span>
-            <span class="modal-value">${order.notes}</span>
-        </div>
-        ` : ''}
+        ${order.notes ? `<div class="modal-row"><span class="modal-label">Obs</span><span class="modal-value">${order.notes}</span></div>` : ''}
         <div class="modal-items">
             <h4>Itens do Pedido</h4>
             ${items.map(item => `
                 <div class="modal-item">
-                    <span>${item.quantity}x ${item.name}</span>
+                    <span>${item.quantity}x ${item.name} <small>${item.option || ''}</small></span>
                     <span>${item.price}</span>
                 </div>
             `).join('')}
+             <div class="modal-row" style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
+                <span class="modal-label"><strong>Total</strong></span>
+                <span class="modal-value" style="color:var(--accent-gold)"><strong>R$ ${parseFloat(order.total).toFixed(2).replace('.', ',')}</strong></span>
+            </div>
         </div>
     `;
-
     document.getElementById('order-modal').classList.add('active');
 }
 
-function closeModal() {
-    document.getElementById('order-modal').classList.remove('active');
-}
-
 // ============================================
-// MENU ITEMS
+// MENU ITEMS LOGIC
 // ============================================
 
 async function loadMenuItems() {
     const result = await supabaseRequest('menu_items?menu_type=eq.cardapio&order=category,name');
-
     if (result.success) {
         menuItems = result.data;
         renderMenuGrid();
         populateCategoryFilter();
-    } else {
-        showToast('Erro ao carregar cardápio', 'error');
     }
 }
 
 function populateCategoryFilter() {
     const filter = document.getElementById('category-filter');
+    if(!filter) return;
     const categories = [...new Set(menuItems.map(item => item.category))];
-
-    filter.innerHTML = '<option value="">Todas Categorias</option>';
-    categories.forEach(cat => {
-        filter.innerHTML += `<option value="${cat}">${cat}</option>`;
-    });
-
-    filter.addEventListener('change', () => {
-        renderMenuGrid(filter.value);
-    });
+    
+    let html = '<option value="">Todas Categorias</option>';
+    categories.forEach(cat => html += `<option value="${cat}">${cat}</option>`);
+    filter.innerHTML = html;
+    
+    // Evita adicionar múltiplos listeners se a função for chamada novamente
+    filter.onchange = () => renderMenuGrid(filter.value);
 }
 
 function renderMenuGrid(categoryFilter = '') {
     const container = document.getElementById('menu-grid');
+    if(!container) return;
+    
     let items = menuItems;
-
-    if (categoryFilter) {
-        items = items.filter(item => item.category === categoryFilter);
-    }
+    if (categoryFilter) items = items.filter(item => item.category === categoryFilter);
 
     if (items.length === 0) {
         container.innerHTML = '<p class="empty-state">Nenhum item encontrado</p>';
@@ -446,28 +374,17 @@ function renderMenuGrid(categoryFilter = '') {
 
     container.innerHTML = items.map(item => `
         <div class="menu-item ${item.active ? '' : 'inactive'}">
-            <img src="${item.image}" alt="${item.name}" class="menu-item-image" 
-                 onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
+            <img src="${item.image}" alt="${item.name}" class="menu-item-image" onerror="this.src='https://via.placeholder.com/100'">
             <div class="menu-item-content">
                 <div class="menu-item-header">
                     <span class="menu-item-name">${item.name}</span>
                     <span class="menu-item-price">${item.price}</span>
                 </div>
-                <div class="menu-item-category">${item.category}</div>
                 <div class="menu-item-controls">
-                    <div class="toggle-wrapper">
-                        <span class="toggle-label">Ativo</span>
-                        <label class="toggle">
-                            <input type="checkbox" ${item.active ? 'checked' : ''} 
-                                   onchange="toggleMenuItem('${item.id}', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="quantity-wrapper">
-                        <span class="quantity-label">Qtd:</span>
-                        <input type="number" class="quantity-input" value="${item.quantity || 0}" min="0"
-                               onchange="updateMenuQuantity('${item.id}', this.value)">
-                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleMenuItem('${item.id}', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -477,98 +394,61 @@ function renderMenuGrid(categoryFilter = '') {
 async function toggleMenuItem(itemId, active) {
     const result = await supabaseRequest(`menu_items?id=eq.${itemId}`, {
         method: 'PATCH',
-        body: JSON.stringify({
-            active,
-            updated_at: new Date().toISOString()
-        })
+        body: JSON.stringify({ active, updated_at: new Date().toISOString() })
     });
-
     if (result.success) {
         showToast(`Item ${active ? 'ativado' : 'desativado'}`);
-        loadMenuItems();
-    } else {
-        showToast('Erro ao atualizar item', 'error');
-    }
-}
-
-async function updateMenuQuantity(itemId, quantity) {
-    const result = await supabaseRequest(`menu_items?id=eq.${itemId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-            quantity: parseInt(quantity) || 0,
-            updated_at: new Date().toISOString()
-        })
-    });
-
-    if (result.success) {
-        showToast('Quantidade atualizada');
-    } else {
-        showToast('Erro ao atualizar quantidade', 'error');
+        // Atualiza local
+        const item = menuItems.find(i => i.id === itemId);
+        if(item) item.active = active;
+        renderMenuGrid(document.getElementById('category-filter')?.value);
     }
 }
 
 // ============================================
-// PRONTA ENTREGA
+// PRONTA ENTREGA LOGIC
 // ============================================
 
 async function loadProntaEntrega() {
     const result = await supabaseRequest('menu_items?menu_type=eq.pronta_entrega&order=name');
-
     if (result.success) {
         prontaEntregaItems = result.data;
         renderProntaGrid();
         updateStockCount();
-    } else {
-        showToast('Erro ao carregar pronta entrega', 'error');
     }
 }
 
 function updateStockCount() {
     const totalStock = prontaEntregaItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
-    const stockCountEl = document.getElementById('stock-count');
-    const totalStockEl = document.getElementById('total-stock');
-
-    if (stockCountEl) stockCountEl.textContent = totalStock;
-    if (totalStockEl) totalStockEl.textContent = totalStock;
+    setText('stock-count', totalStock);
+    setText('total-stock', totalStock);
 }
 
 function renderProntaGrid() {
     const container = document.getElementById('pronta-grid');
-
     if (!container) return;
 
     if (prontaEntregaItems.length === 0) {
-        container.innerHTML = '<p class="empty-state">Nenhum item de pronta entrega encontrado</p>';
+        container.innerHTML = '<p class="empty-state">Nenhum item encontrado</p>';
         return;
     }
 
     container.innerHTML = prontaEntregaItems.map(item => `
         <div class="pronta-item ${item.active ? '' : 'inactive'} ${(item.quantity || 0) === 0 ? 'out-of-stock' : ''}">
-            <img src="${item.image}" alt="${item.name}" class="pronta-item-image" 
-                 onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
+            <img src="${item.image}" alt="${item.name}" class="pronta-item-image" onerror="this.src='https://via.placeholder.com/100'">
             <div class="pronta-item-content">
                 <div class="pronta-item-header">
                     <span class="pronta-item-name">${item.name}</span>
                     <span class="pronta-item-price">${item.price}</span>
                 </div>
-                <div class="pronta-item-stock ${(item.quantity || 0) === 0 ? 'empty' : (item.quantity <= 1 ? 'low' : '')}">
-                    <span class="stock-icon">${(item.quantity || 0) === 0 ? '⚠️' : '📦'}</span>
-                    <span class="stock-text">${item.quantity || 0} unidade${(item.quantity || 0) !== 1 ? 's' : ''}</span>
+                <div class="pronta-item-stock">
+                    Estoque: <strong>${item.quantity || 0}</strong>
                 </div>
                 <div class="pronta-item-controls">
-                    <div class="toggle-wrapper">
-                        <span class="toggle-label">Disponível</span>
-                        <label class="toggle">
-                            <input type="checkbox" ${item.active ? 'checked' : ''} 
-                                   onchange="toggleProntaItem('${item.id}', this.checked)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
                     <div class="quantity-controls">
-                        <button class="qty-btn minus" onclick="updateProntaQuantity('${item.id}', ${(item.quantity || 0) - 1})">−</button>
-                        <input type="number" class="quantity-input" value="${item.quantity || 0}" min="0"
-                               onchange="updateProntaQuantity('${item.id}', this.value)">
-                        <button class="qty-btn plus" onclick="updateProntaQuantity('${item.id}', ${(item.quantity || 0) + 1})">+</button>
+                        <button class="qty-btn" onclick="updateProntaQuantity('${item.id}', ${(item.quantity || 0) - 1})">−</button>
+                        <input type="number" class="quantity-input" value="${item.quantity || 0}" readonly>
+                        <button class="qty-btn" onclick="updateProntaQuantity('${item.id}', ${(item.quantity || 0) + 1})">+</button>
                     </div>
                 </div>
             </div>
@@ -576,62 +456,41 @@ function renderProntaGrid() {
     `).join('');
 }
 
-async function toggleProntaItem(itemId, active) {
-    const result = await supabaseRequest(`menu_items?id=eq.${itemId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-            active,
-            updated_at: new Date().toISOString()
-        })
-    });
-
-    if (result.success) {
-        showToast(`Item ${active ? 'ativado' : 'desativado'}`);
-        loadProntaEntrega();
-    } else {
-        showToast('Erro ao atualizar item', 'error');
-    }
-}
-
 async function updateProntaQuantity(itemId, quantity) {
     const newQty = Math.max(0, parseInt(quantity) || 0);
-
     const result = await supabaseRequest(`menu_items?id=eq.${itemId}`, {
         method: 'PATCH',
-        body: JSON.stringify({
-            quantity: newQty,
-            updated_at: new Date().toISOString()
-        })
+        body: JSON.stringify({ quantity: newQty, updated_at: new Date().toISOString() })
     });
 
     if (result.success) {
         showToast('Estoque atualizado');
-        loadProntaEntrega();
-    } else {
-        showToast('Erro ao atualizar estoque', 'error');
+        // Atualiza localmente e re-renderiza para ser rápido
+        const item = prontaEntregaItems.find(i => i.id === itemId);
+        if(item) item.quantity = newQty;
+        renderProntaGrid();
+        updateStockCount();
     }
 }
 
 // ============================================
-// CUSTOMERS
+// CUSTOMERS LOGIC
 // ============================================
 
 async function loadCustomers() {
     const result = await supabaseRequest('customers?order=created_at.desc');
-
     if (result.success) {
         customers = result.data;
         renderCustomersTable();
-    } else {
-        showToast('Erro ao carregar clientes', 'error');
     }
 }
 
 function renderCustomersTable() {
     const tbody = document.getElementById('customers-table-body');
-
+    if(!tbody) return;
+    
     if (customers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum cliente cadastrado</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum cliente</td></tr>';
         return;
     }
 
@@ -640,79 +499,63 @@ function renderCustomersTable() {
             <td><strong>${customer.full_name}</strong></td>
             <td>${formatCPF(customer.cpf)}</td>
             <td>${customer.whatsapp}</td>
-            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${customer.address}</td>
+            <td class="truncate">${customer.address}</td>
             <td>${formatDate(customer.created_at)}</td>
         </tr>
     `).join('');
 }
 
 // ============================================
-// UTILITIES
+// UTILS
 // ============================================
 
 function formatItems(items) {
     if (!items) return '-';
-    const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
-    const count = parsedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    return `${count} item${count !== 1 ? 's' : ''}`;
+    try {
+        const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+        const count = parsedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        return `${count} item${count !== 1 ? 's' : ''}`;
+    } catch(e) { return 'Erro itens'; }
 }
 
 function formatDate(dateString) {
     if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
     });
 }
 
 function formatCPF(cpf) {
     if (!cpf) return '-';
-    // Remove non-digits
-    const digits = cpf.replace(/\D/g, '');
-    if (digits.length !== 11) return cpf;
-    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
 function translateStatus(status) {
-    const translations = {
-        pending: 'Pendente',
-        confirmed: 'Confirmado',
-        preparing: 'Preparando',
-        ready: 'Pronto',
-        delivered: 'Entregue',
-        cancelled: 'Cancelado'
+    const map = {
+        pending: 'Pendente', confirmed: 'Confirmado', preparing: 'Preparando',
+        ready: 'Pronto', delivered: 'Entregue', cancelled: 'Cancelado'
     };
-    return translations[status] || status;
+    return map[status] || status;
 }
 
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-
-    toastMessage.textContent = message;
+    const msgEl = document.getElementById('toast-message') || toast; // Fallback se não tiver filho
+    
+    if(msgEl !== toast) msgEl.textContent = message;
+    else toast.textContent = message;
+    
     toast.className = `toast show ${type}`;
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Event listener for status filter
-document.getElementById('status-filter')?.addEventListener('change', loadOrders);
+function closeModal() {
+    document.getElementById('order-modal')?.classList.remove('active');
+}
 
-// Close modal on escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
-
-// Close modal on backdrop click
+// Event Listeners globais
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 document.getElementById('order-modal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'order-modal') {
-        closeModal();
-    }
+    if (e.target.id === 'order-modal') closeModal();
 });
+document.getElementById('status-filter')?.addEventListener('change', loadOrders);
