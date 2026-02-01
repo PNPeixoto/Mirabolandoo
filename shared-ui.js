@@ -1,32 +1,39 @@
 /**
  * Shared UI Logic for Projeto Mirabolando
  * Handles card creation, translations, and common behavior for both Encomenda and Pronta Entrega pages.
+ * VERSÃO CORRIGIDA E BLINDADA
  */
 
 const SharedUI = {
     /**
-     * Resolves translated text for an item.
+     * Resolves translated text for an item with safety checks.
      */
     resolveTranslation(item) {
-        const currentLang = window.languageManager ? window.languageManager.currentLang : 'pt-BR';
-        let name = item.name;
+        // Garante que existe um idioma padrão
+        const currentLang = (window.languageManager && window.languageManager.currentLang) ? window.languageManager.currentLang : 'pt-BR';
+        
+        let name = item.name || 'Item sem nome';
         let shortDesc = item.short_desc || item.shortDesc || '';
         let fullDesc = item.full_desc || item.fullDesc || '';
 
-        // Check explicit translations on snippet
-        if (item.translations && item.translations[currentLang]) {
-            name = item.translations[currentLang].name;
-            shortDesc = item.translations[currentLang].shortDesc;
-            fullDesc = item.translations[currentLang].fullDesc;
-        }
-        // Fallback to global local data (menuCardapioLoja)
-        else if (window.menuCardapioLoja) {
-            const localItem = window.menuCardapioLoja.find(l => l.id === item.id);
-            if (localItem && localItem.translations && localItem.translations[currentLang]) {
-                name = localItem.translations[currentLang].name;
-                shortDesc = localItem.translations[currentLang].shortDesc;
-                fullDesc = localItem.translations[currentLang].fullDesc;
+        try {
+            // Check explicit translations on snippet
+            if (item.translations && item.translations[currentLang]) {
+                name = item.translations[currentLang].name || name;
+                shortDesc = item.translations[currentLang].shortDesc || shortDesc;
+                fullDesc = item.translations[currentLang].fullDesc || fullDesc;
             }
+            // Fallback to global local data (menuCardapioLoja)
+            else if (window.menuCardapioLoja) {
+                const localItem = window.menuCardapioLoja.find(l => l.id === item.id);
+                if (localItem && localItem.translations && localItem.translations[currentLang]) {
+                    name = localItem.translations[currentLang].name || name;
+                    shortDesc = localItem.translations[currentLang].shortDesc || shortDesc;
+                    fullDesc = localItem.translations[currentLang].fullDesc || fullDesc;
+                }
+            }
+        } catch (e) {
+            console.warn(`Erro na tradução do item ${item.id}`, e);
         }
 
         return { name, shortDesc, fullDesc, currentLang };
@@ -43,8 +50,8 @@ const SharedUI = {
                 <p data-i18n="cardapio.options.choose_size">Escolha o tamanho:</p>
                 ${item.options.map((opt, idx) => `
                     <label class="size-option-label" onclick="event.stopPropagation()">
-                        <input type="radio" name="size_${item.id}" value="${opt.price}" data-size="${opt.label}" ${idx === 0 ? 'checked' : ''}>
-                        <span class="size-name">${opt.label}</span>
+                        <input type="radio" name="size_${item.id}" value="${opt.price}" data-size="${opt.label || opt.size}" ${idx === 0 ? 'checked' : ''}>
+                        <span class="size-name">${opt.label || opt.size}</span>
                         <span class="size-price">${opt.price}</span>
                     </label>
                 `).join('')}
@@ -67,21 +74,19 @@ const SharedUI = {
 
     /**
      * Creates a card DOM element.
-     * @param {Object} item - The product item.
-     * @param {number} index - For animation delay.
-     * @param {Object} config - { type: 'encomenda' | 'pronta-entrega', addToCartFn: 'addToCart' }
      */
     createCard(item, index, config = { type: 'encomenda' }) {
         const card = document.createElement('div');
-        const quantity = item.quantity || 0;
-        const isSoldOut = (config.type === 'pronta-entrega') && (quantity === 0);
+        // Garante que quantity é um número
+        const quantity = parseInt(item.quantity) || 0; 
+        const isSoldOut = (config.type === 'pronta_entrega' || config.type === 'pronta-entrega') && (quantity === 0);
 
         card.className = `card ${isSoldOut ? 'sold-out' : ''}`;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
 
-        // Staggered Animation
-        if (config.type === 'pronta-entrega') {
+        // Animação escalonada
+        if (config.type.includes('pronta')) {
             card.style.transitionDelay = `${Math.min(index * 0.05, 0.5)}s`;
         } else {
             card.style.animationDelay = `${index * 0.1}s`;
@@ -92,17 +97,25 @@ const SharedUI = {
         const { name, shortDesc, fullDesc, currentLang } = this.resolveTranslation(item);
 
         const image = item.image || 'assets/placeholder.jpg';
-        const price = item.price || (config.type === 'encomenda' ? "Consulte" : "R$ 0,00");
-        const fromPrice = (config.type === 'encomenda' && item.options) ? 'A partir de ' : '';
+        // Tratamento seguro de preço
+        let price = item.price || "R$ 0,00";
+        if (config.type === 'encomenda' && (!item.price || item.price === '0' || item.price === 0)) {
+            price = "Consulte";
+        }
+        
+        const fromPrice = (config.type === 'encomenda' && item.options && item.options.length > 0) ? 'A partir de ' : '';
         const imagePosition = item.imagePosition || 'center center';
 
-        // Badges
+        // Badges Logic
         let badgesHtml = '';
-        if (config.type === 'pronta-entrega') {
-            const translations = window.translations || {}; // ensure safe access
-            const stockText = (translations[currentLang] && translations[currentLang]['cardapio.stock'])
-                ? translations[currentLang]['cardapio.stock'].replace('{quantity}', quantity)
-                : `Última ${quantity}!`;
+        if (config.type.includes('pronta')) {
+            // Acesso seguro às traduções globais
+            let stockText = `Última ${quantity}!`;
+            try {
+                if (window.translations && window.translations[currentLang] && window.translations[currentLang]['cardapio.stock']) {
+                    stockText = window.translations[currentLang]['cardapio.stock'].replace('{quantity}', quantity);
+                }
+            } catch (e) {}
 
             if (isSoldOut) {
                 badgesHtml = `<div class="sold-out-overlay"><span class="sold-out-badge-text">Esgotado</span></div>`;
@@ -112,16 +125,12 @@ const SharedUI = {
                     ${quantity <= 3 && quantity > 0 ? `<span class="stock-badge">${stockText}</span>` : ''}
                 `;
             }
-        } else {
-            // Encomenda badges (if any specific logic exists, currently usually empty or 'Mágico')
-            // Preserving the 'specialBadge' if logic existed, but based on reading it seems implicit.
-            // We can check item.badge property if we add it later.
         }
 
         const optionsBlock = (config.type === 'encomenda') ? this.renderOptions(item) : '';
 
         // Quantity Info (Pronta Entrega only)
-        const quantityInfo = (config.type === 'pronta-entrega') ? `
+        const quantityInfo = (config.type.includes('pronta')) ? `
             <div class="quantity-info">
                 <span>Disponível:</span>
                 <span class="qty">${quantity > 0 ? `${quantity} unidade${quantity > 1 ? 's' : ''}` : 'Esgotado'}</span>
@@ -129,17 +138,31 @@ const SharedUI = {
         ` : '';
 
         // Actions (Add to Cart - Encomenda only)
-        const actionsBlock = (config.type === 'encomenda') ? `
-            <div class="card-actions">
-                <button class="add-to-cart-btn" onclick="${config.addToCartFn || 'addToCart'}(event, '${item.id}')">
-                    Adicionar à Encomenda
-                </button>
-            </div>
-        ` : '';
+        // Se for pronta entrega, pode ser botão de WhatsApp
+        let actionsBlock = '';
+        if (config.type === 'encomenda') {
+            actionsBlock = `
+                <div class="card-actions">
+                    <button class="add-to-cart-btn" onclick="${config.addToCartFn || 'addToCart'}(event, '${item.id}')">
+                        Adicionar à Encomenda
+                    </button>
+                </div>
+            `;
+        } else if (config.type.includes('pronta') && !isSoldOut) {
+            // Botão WhatsApp para Pronta Entrega
+            const msg = encodeURIComponent(`Olá! Quero reservar o item de pronta entrega: ${name}`);
+            actionsBlock = `
+                <div class="card-actions">
+                     <a href="https://wa.me/5522999999999?text=${msg}" target="_blank" class="btn-whatsapp" style="display:block; text-align:center; padding:10px; background:#25D366; color:white; border-radius:8px; text-decoration:none; margin-top:10px;">
+                        Comprar Agora 📱
+                    </a>
+                </div>
+            `;
+        }
 
         card.innerHTML = `
             <div class="card-image-container">
-                <img src="${image}" alt="${name}" class="card-img" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
+                <img src="${image}" alt="${name}" class="card-img" loading="lazy" style="object-position: ${imagePosition};" onerror="this.src='https://via.placeholder.com/400x200?text=Mirabolando'">
                 <button class="favorite-btn" aria-label="Favoritar">♥</button>
                 ${badgesHtml}
                 <span class="card-price">${fromPrice}${price}</span>
@@ -167,7 +190,11 @@ const SharedUI = {
 
         // Event Listeners
         card.addEventListener('click', (e) => {
-            if (e.target.closest('.size-option-label') || e.target.closest('.add-to-cart-btn') || e.target.closest('.favorite-btn')) return;
+            // Não expande se clicar nos botões de ação ou radio buttons
+            if (e.target.closest('.size-option-label') || 
+                e.target.closest('.add-to-cart-btn') || 
+                e.target.closest('.btn-whatsapp') ||
+                e.target.closest('.favorite-btn')) return;
             this.toggleCard(card);
         });
 
@@ -179,16 +206,29 @@ const SharedUI = {
      */
     renderMenu(items, containerId, config) {
         const container = document.getElementById(containerId);
-        if (!container) return;
+        if (!container) {
+            console.error(`Container ${containerId} não encontrado`);
+            return;
+        }
 
         container.innerHTML = '';
+        
+        if (!items || items.length === 0) {
+            container.innerHTML = '<p class="empty-state">Nenhum item encontrado.</p>';
+            return;
+        }
+
         items.forEach((item, index) => {
-            const card = this.createCard(item, index, config);
-            container.appendChild(card);
+            try {
+                const card = this.createCard(item, index, config);
+                container.appendChild(card);
+            } catch (error) {
+                console.error(`Erro ao renderizar item ${index}:`, error);
+            }
         });
 
         // Post-render animation trigger if needed
-        if (config.type === 'pronta-entrega') {
+        if (config.type && config.type.includes('pronta')) {
             setTimeout(() => {
                 document.querySelectorAll('.card').forEach(card => card.classList.add('visible'));
             }, 100);
