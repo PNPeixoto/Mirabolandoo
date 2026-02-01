@@ -16,198 +16,75 @@
     <link rel="stylesheet" href="premium-animations.css">
     
     <style>
-        /* Login Modal Styles */
+        /* ESTILOS DO MODAL DE LOGIN E CARRINHO */
         .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            opacity: 1;
-            transition: opacity 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            padding: 1rem; opacity: 1; transition: opacity 0.3s ease;
         }
-
-        .auth-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
+        .auth-overlay.hidden { opacity: 0; pointer-events: none; }
         .auth-container {
             background: linear-gradient(145deg, #1a1a23 0%, #14141b 100%);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 480px;
-            width: 100%;
-            padding: 2.5rem;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.4s ease;
+            border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 480px; width: 100%; padding: 2.5rem;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5); animation: slideUp 0.4s ease;
         }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .auth-header { text-align: center; margin-bottom: 2rem; }
-        .auth-header img {
-            width: 80px; height: 80px; border-radius: 50%;
-            margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(107, 45, 60, 0.3);
-        }
-        .auth-header h2 {
-            color: white; font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem; margin-bottom: 0.5rem;
-        }
+        .auth-header img { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(107, 45, 60, 0.3); }
+        .auth-header h2 { color: white; font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 0.5rem; }
         .auth-header p { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; }
-
         .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
-        .auth-tab {
-            flex: 1; padding: 0.875rem; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
-            color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; font-weight: 500;
-            cursor: pointer; transition: all 0.3s ease;
-        }
+        .auth-tab { flex: 1; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
         .auth-tab:hover { background: rgba(255, 255, 255, 0.08); }
-        .auth-tab.active {
-            background: linear-gradient(135deg, #6B2D3C, #8B3D4F);
-            border-color: #6B2D3C; color: white;
-        }
-
+        .auth-tab.active { background: linear-gradient(135deg, #6B2D3C, #8B3D4F); border-color: #6B2D3C; color: white; }
         .auth-form { display: none; }
         .auth-form.active { display: block; }
-
         .form-group { margin-bottom: 1.25rem; }
-        .form-group label {
-            display: block; color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;
-        }
-        .form-group input {
-            width: 100%; padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px;
-            color: white; font-size: 1rem; transition: all 0.3s ease;
-        }
-        .form-group input:focus {
-            outline: none; border-color: #6B2D3C; background: rgba(255, 255, 255, 0.08);
-        }
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
-
-        .auth-submit {
-            width: 100%; padding: 1rem; background: linear-gradient(135deg, #6B2D3C, #8B3D4F);
-            border: none; border-radius: 12px; color: white; font-size: 1rem;
-            font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 0.5rem;
-        }
+        .form-group label { display: block; color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; }
+        .form-group input { width: 100%; padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; color: white; font-size: 1rem; transition: all 0.3s ease; }
+        .form-group input:focus { outline: none; border-color: #6B2D3C; background: rgba(255, 255, 255, 0.08); }
+        .auth-submit { width: 100%; padding: 1rem; background: linear-gradient(135deg, #6B2D3C, #8B3D4F); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 0.5rem; }
         .auth-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(107, 45, 60, 0.4); }
-        .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .auth-error {
-            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px; padding: 0.75rem; color: #ef4444; font-size: 0.85rem;
-            margin-bottom: 1rem; display: none;
-        }
+        .auth-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 0.75rem; color: #ef4444; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
         .auth-error.show { display: block; }
-
-        .user-info-bar {
-            background: linear-gradient(135deg, #6B2D3C, #8B3D4F);
-            padding: 0.75rem 1.5rem; display: flex; align-items: center;
-            justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-        }
+        .user-info-bar { background: linear-gradient(135deg, #6B2D3C, #8B3D4F); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .user-info-bar.hidden { display: none; }
         .user-greeting { color: white; font-size: 0.9rem; }
-        .user-greeting strong { color: #d4a574; }
-
-        .btn-logout {
-            padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
-            color: white; font-size: 0.8rem; cursor: pointer; transition: all 0.3s ease;
-        }
-        .btn-logout:hover { background: rgba(255, 255, 255, 0.25); }
+        .btn-logout { padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-size: 0.8rem; cursor: pointer; }
         body.logged-in header { margin-top: 50px; }
-
-        /* Floating Cart */
-        .cart-float {
-            position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px;
-            background: linear-gradient(135deg, #6B2D3C, #8B3D4F); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 30px rgba(107, 45, 60, 0.4); cursor: pointer; z-index: 900;
-            transition: all 0.3s ease;
-        }
+        
+        /* Cart Styles */
+        .cart-float { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; background: linear-gradient(135deg, #6B2D3C, #8B3D4F); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(107, 45, 60, 0.4); cursor: pointer; z-index: 900; transition: transform 0.3s ease; }
         .cart-float:hover { transform: scale(1.1); }
         .cart-float span { font-size: 1.5rem; }
-        .cart-count {
-            position: absolute; top: -5px; right: -5px; background: #d4a574;
-            color: #1a1a23; width: 24px; height: 24px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 700;
-        }
+        .cart-count { position: absolute; top: -5px; right: -5px; background: #d4a574; color: #1a1a23; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
         .cart-count.hidden { display: none; }
-
-        /* Cart Sidebar */
-        .cart-sidebar {
-            position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px;
-            height: 100%; background: #1a1a23; z-index: 9998; transition: right 0.3s ease;
-            display: flex; flex-direction: column;
-        }
+        .cart-sidebar { position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px; height: 100%; background: #1a1a23; z-index: 9998; transition: right 0.3s ease; display: flex; flex-direction: column; }
         .cart-sidebar.open { right: 0; }
-        .cart-sidebar-header {
-            padding: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .cart-sidebar-header { padding: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
         .cart-sidebar-header h3 { color: white; font-size: 1.3rem; }
-        .cart-close {
-            background: none; border: none; color: rgba(255, 255, 255, 0.6);
-            font-size: 1.5rem; cursor: pointer;
-        }
+        .cart-close { background: none; border: none; color: rgba(255, 255, 255, 0.6); font-size: 1.5rem; cursor: pointer; }
         .cart-items { flex: 1; overflow-y: auto; padding: 1rem; }
-        .cart-item {
-            display: flex; gap: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px; margin-bottom: 0.75rem;
-        }
+        .cart-item { display: flex; gap: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 0.75rem; }
         .cart-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
         .cart-item-info { flex: 1; }
-        .cart-item-name { color: white; font-weight: 500; margin-bottom: 0.25rem; }
+        .cart-item-name { color: white; font-weight: 500; }
         .cart-item-option { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; }
         .cart-item-price { color: #d4a574; font-weight: 600; }
         .cart-item-remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; }
-        .cart-empty { text-align: center; color: rgba(255, 255, 255, 0.5); padding: 3rem 1rem; }
         .cart-footer { padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
         .cart-total { display: flex; justify-content: space-between; margin-bottom: 1rem; color: white; font-size: 1.1rem; }
         .cart-total strong { color: #d4a574; }
-        .form-group textarea {
-            width: 100%; padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px;
-            color: white; font-size: 0.9rem; resize: vertical; min-height: 80px;
-        }
-        .btn-checkout {
-            width: 100%; padding: 1rem; background: linear-gradient(135deg, #6B2D3C, #8B3D4F);
-            border: none; border-radius: 12px; color: white; font-size: 1rem;
-            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-        }
-        .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(107, 45, 60, 0.4); }
-        .btn-checkout:disabled { opacity: 0.6; cursor: not-allowed; }
-        .toast {
-            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
-            padding: 1rem 1.5rem; background: #22c55e; color: white; border-radius: 10px;
-            font-weight: 500; opacity: 0; transition: all 0.3s ease; z-index: 10000;
-        }
+        .btn-checkout { width: 100%; padding: 1rem; background: linear-gradient(135deg, #6B2D3C, #8B3D4F); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .cart-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9997; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .cart-overlay.show { opacity: 1; pointer-events: auto; }
+        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); padding: 1rem 1.5rem; background: #22c55e; color: white; border-radius: 10px; font-weight: 500; opacity: 0; transition: all 0.3s ease; z-index: 10000; }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.error { background: #ef4444; }
-        .cart-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); z-index: 9997; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .cart-overlay.show { opacity: 1; pointer-events: auto; }
-        .auth-back-link {
-            display: inline-block; margin-bottom: 1rem; color: rgba(255, 255, 255, 0.6);
-            text-decoration: none; font-size: 0.9rem; transition: color 0.3s; align-self: flex-start;
-        }
-        .auth-back-link:hover { color: #d4a574; }
+        .auth-back-link { display: inline-block; margin-bottom: 1rem; color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; }
+        .form-group textarea { width: 100%; padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; color: white; font-size: 0.9rem; resize: vertical; min-height: 80px; }
     </style>
 </head>
 
@@ -366,7 +243,8 @@
 
     <script src="data-encomenda.js"></script>
     <script src="data-cardapio.js"></script>
-    <script src="translations.js"></script> <script src="shared-ui.js"></script>
+    <script src="translations.js"></script>
+    <script src="shared-ui.js"></script>
 
     <script>
         // Supabase Configuration
@@ -382,30 +260,49 @@
         // ============================================
 
         document.addEventListener('DOMContentLoaded', () => {
-            checkLoggedIn();
-            // Verifica se o menuData existe antes de renderizar
-            if (window.menuData) {
-                renderMenu(window.menuData);
-            } else {
-                console.error("window.menuData não encontrado. Verifique data-encomenda.js");
-            }
             
+            // CORREÇÃO CRÍTICA: GARANTIR QUE OS DADOS ESTÃO DISPONÍVEIS
+            // Se 'menuData' foi criado como const, ele não está em window.menuData.
+            // Precisamos pegá-lo diretamente ou mapeá-lo.
+            let dadosDoMenu = [];
+            
+            if (typeof menuData !== 'undefined') {
+                dadosDoMenu = menuData;
+                window.menuData = menuData; // Garante consistência para outros scripts
+            } else if (window.menuData) {
+                dadosDoMenu = window.menuData;
+            } else {
+                console.error("ERRO CRÍTICO: Variável 'menuData' não encontrada em data-encomenda.js");
+            }
+
+            // O mesmo para data-cardapio (usado nas traduções)
+            if (typeof menuCardapioLoja !== 'undefined') {
+                window.menuCardapioLoja = menuCardapioLoja;
+            }
+
+            // Renderizar se tivermos dados
+            if (dadosDoMenu.length > 0) {
+                renderMenu(dadosDoMenu);
+            }
+
+            checkLoggedIn();
             setupSearchAndFilters();
             setupInputMasks();
 
-            // Listen for language changes to re-render cards
+            // Language Changed Event
             window.addEventListener('languageChanged', () => {
                 const searchTerm = document.getElementById('searchInput').value;
                 const activeCategory = getActiveCategory();
                 filterItems(searchTerm, activeCategory);
             });
 
-            // Re-render once languageManager is initialized
+            // Re-check after small delay (fallback de segurança)
             setTimeout(() => {
-                if (window.languageManager && window.menuData) {
-                    renderMenu(window.menuData);
+                if (!document.getElementById('menu-container').hasChildNodes() && typeof menuData !== 'undefined') {
+                    console.log("Tentativa de re-renderização de segurança...");
+                    renderMenu(menuData);
                 }
-            }, 100);
+            }, 500);
         });
 
         // ============================================
@@ -441,11 +338,12 @@
         }
 
         function filterItems(searchTerm, category) {
-            if (!window.menuData) return;
+            // Usa window.menuData que garantimos existir no init
+            const sourceData = window.menuData || (typeof menuData !== 'undefined' ? menuData : []);
             
             searchTerm = searchTerm.toLowerCase().trim();
 
-            const filtered = window.menuData.filter(item => {
+            const filtered = sourceData.filter(item => {
                 // Category match
                 const matchesCategory = category === 'all' ||
                     (item.category && item.category.includes(category));
@@ -686,10 +584,13 @@
 
         function addToCart(event, itemId) {
             event.stopPropagation();
+            
+            // Busca dados de window.menuData ou menuData
+            const sourceData = window.menuData || (typeof menuData !== 'undefined' ? menuData : []);
+            
+            if (!sourceData.length) return;
 
-            if (!window.menuData) return;
-
-            const item = window.menuData.find(i => i.id === itemId);
+            const item = sourceData.find(i => i.id === itemId);
             if (!item) return;
 
             const card = event.target.closest('.card');
