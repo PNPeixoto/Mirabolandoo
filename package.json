@@ -1,13 +1,8 @@
 {
   "name": "mirabolando-site",
   "version": "1.0.0",
-  "description": "Site Mirabolando",
   "main": "index.html",
-  "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
-  },
-  "engines": {
-    "node": "18.x"
   }
 }
