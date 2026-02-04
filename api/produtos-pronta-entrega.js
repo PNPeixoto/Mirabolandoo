@@ -1,4 +1,3 @@
-// Arquivo: /api/produtos-pronta-entrega.js
 import { createClient } from '@supabase/supabase-js';
 
 // Inicializa o Supabase com as chaves que estarão nas Variáveis de Ambiente da Vercel
@@ -8,7 +7,7 @@ const supabase = createClient(
 );
 
 export default async function handler(request, response) {
-  // Configura cabeçalhos para permitir que seu site acesse a API (CORS)
+  // Configurações de segurança (CORS) para permitir que seu site acesse a API
   response.setHeader('Access-Control-Allow-Credentials', true);
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -17,14 +16,14 @@ export default async function handler(request, response) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // Responde imediatamente a requisições OPTIONS (pre-flight)
+  // Responde rápido para verificações do navegador
   if (request.method === 'OPTIONS') {
     response.status(200).end();
     return;
   }
 
   try {
-    // Busca os dados no Supabase
+    // Busca os dados no banco
     const { data, error } = await supabase
       .from('menu_items')
       .select('*')
@@ -35,7 +34,7 @@ export default async function handler(request, response) {
 
     if (error) throw error;
 
-    // Retorna os dados para o seu site
+    // Retorna os dados
     response.status(200).json(data);
   } catch (error) {
     response.status(500).json({ error: error.message });
