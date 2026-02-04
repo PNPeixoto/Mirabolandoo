@@ -15,9 +15,8 @@
     <link rel="stylesheet" href="style.css">
     <style>
         /* =========================================
-           CORREÇÕES DE SISTEMA (SCROLL E SEGURANÇA)
+           CORREÇÕES DE SISTEMA
            ========================================= */
-
         html {
             height: 100%;
             overflow-y: scroll;
@@ -34,7 +33,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Previne piscadas (Flickering) */
+        /* Previne piscadas */
         header, .menu-container, .card, .hero-bg, nav, .intro-pronta {
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
@@ -101,150 +100,54 @@
             margin-bottom: 0.5rem;
         }
 
-        .intro-pronta h2::after {
-            display: none;
-        }
-
-        .intro-pronta p {
-            color: rgba(255, 255, 255, 0.9);
-        }
+        .intro-pronta h2::after { display: none; }
+        .intro-pronta p { color: rgba(255, 255, 255, 0.9); }
 
         /* Sold Out Styles */
-        .card.sold-out .card-img {
-            filter: grayscale(100%);
-            opacity: 0.8;
-        }
-
+        .card.sold-out .card-img { filter: grayscale(100%); opacity: 0.8; }
         .sold-out-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-            pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5; pointer-events: none;
         }
-
         .sold-out-badge-text {
-            background: #ef4444;
-            color: white;
-            padding: 0.8rem 2rem;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            border-radius: 8px;
-            transform: rotate(-10deg);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            border: 2px solid white;
-            letter-spacing: 2px;
+            background: #ef4444; color: white; padding: 0.8rem 2rem;
+            font-family: var(--font-display); font-weight: 700; font-size: 1.2rem;
+            text-transform: uppercase; border-radius: 8px;
+            transform: rotate(-10deg); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid white; letter-spacing: 2px;
         }
 
-        /* ============================================
-           MIRABOLANDO - PREMIUM ANIMATION SYSTEM
-           ============================================ */
-
+        /* Premium Animation Vars */
         :root {
             --spring-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            --spring-smooth: cubic-bezier(0.34, 1.56, 0.64, 1);
             --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
-            --duration-fast: 0.3s;
         }
 
         /* CUSTOM CURSOR */
         .custom-cursor {
-            width: 20px;
-            height: 20px;
-            background: transparent;
-            border: 2px solid var(--vinho-profundo);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.15s var(--ease-out-expo), width 0.3s var(--spring-bounce), height 0.3s var(--spring-bounce), background 0.3s ease, border-color 0.3s ease;
-            transform: translate(-50%, -50%);
-            mix-blend-mode: difference;
+            width: 20px; height: 20px; background: transparent;
+            border: 2px solid var(--vinho-profundo); border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999;
+            transition: transform 0.15s var(--ease-out-expo), width 0.3s var(--spring-bounce), height 0.3s var(--spring-bounce);
+            transform: translate(-50%, -50%); mix-blend-mode: difference;
         }
-
-        .custom-cursor.hover {
-            width: 60px;
-            height: 60px;
-            background: rgba(196, 154, 108, 0.1);
-            border-color: var(--bronze-dourado);
-        }
-
-        .custom-cursor.click {
-            transform: translate(-50%, -50%) scale(0.8);
-        }
-
-        .cursor-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--vinho-profundo);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 10000;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease, opacity 0.3s ease;
-        }
-
-        @media (hover: none) {
-            .custom-cursor, .cursor-dot { display: none !important; }
-        }
-
-        /* SCROLL PROGRESS */
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--vinho-profundo), var(--bronze-dourado), var(--rosa-damasco));
-            z-index: 9998;
-            transition: width 0.1s linear;
-        }
-
-        /* HERO SECTION */
-        .hero-bg {
-            background:
-                radial-gradient(ellipse at 20% 80%, rgba(232, 175, 161, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(196, 154, 108, 0.25) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(107, 45, 60, 0.08) 0%, transparent 70%),
-                linear-gradient(180deg, var(--branco-quente) 0%, var(--creme-antigo) 100%);
-            animation: gradientShift 20s ease-in-out infinite alternate;
-            will-change: transform;
-        }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        /* Demais animações mantidas... */
-        .hero-title { opacity: 0; animation: heroTitleReveal 1.4s var(--ease-out-expo) forwards 0.2s; }
-        @keyframes heroTitleReveal {
-            0% { opacity: 0; transform: translateY(80px) rotateX(-15deg); filter: blur(10px); }
-            50% { filter: blur(5px); }
-            100% { opacity: 1; transform: translateY(0) rotateX(0deg); filter: blur(0); }
-        }
-
-        .home-nav.scrolled {
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            background: rgba(255, 251, 247, 0.9);
-        }
+        .custom-cursor.hover { width: 60px; height: 60px; background: rgba(196, 154, 108, 0.1); border-color: var(--bronze-dourado); }
+        .custom-cursor.click { transform: translate(-50%, -50%) scale(0.8); }
         
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+        .cursor-dot {
+            width: 6px; height: 6px; background: var(--vinho-profundo);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000;
+            transform: translate(-50%, -50%); transition: transform 0.1s ease, opacity 0.3s ease;
+        }
+
+        @media (hover: none) { .custom-cursor, .cursor-dot { display: none !important; } }
+
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; width: 0%; height: 3px;
+            background: linear-gradient(90deg, var(--vinho-profundo), var(--bronze-dourado), var(--rosa-damasco));
+            z-index: 9998; transition: width 0.1s linear;
         }
     </style>
 </head>
@@ -312,8 +215,7 @@
         </div>
 
         <div class="warning-banner">
-            <strong>Atenção:</strong> Os produtos de pronta entrega são limitados. Para
-            garantir, recomendamos <a href="encomenda.html">encomendar</a>.
+            <strong>Atenção:</strong> Os produtos de pronta entrega são limitados. Para garantir, recomendamos <a href="encomenda.html">encomendar</a>.
         </div>
 
         <div class="search-container" style="justify-content: center; margin-bottom: 2rem;">
@@ -340,12 +242,7 @@
     <script src="data.js"></script>
     
     <script>
-        // ============================================
-        // CONFIGURAÇÃO SEGURA (SEM CHAVES EXPOSTAS)
-        // ============================================
-        
-        // Aponte para sua API Backend, não para o Supabase direto
-        // Se estiver usando Vercel/Netlify, crie uma Serverless Function
+        // CONFIGURAÇÃO SEGURA - APONTA PARA SUA API
         const API_ENDPOINT = '/api/produtos-pronta-entrega'; 
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -356,9 +253,7 @@
             });
 
             setTimeout(async () => {
-                if (window.languageManager) {
-                    await loadProntaEntrega();
-                }
+                if (window.languageManager) await loadProntaEntrega();
             }, 100);
         });
 
@@ -367,19 +262,17 @@
             container.innerHTML = '<p style="text-align:center; width:100%;">Carregando bolos disponíveis...</p>';
 
             try {
-                // AGORA O FETCH É SEGURO:
-                // Chamamos nosso próprio servidor, que guarda as chaves secretamente
+                // Fetch seguro para sua API (não expõe chaves)
                 const response = await fetch(API_ENDPOINT);
 
                 if (!response.ok) throw new Error('Erro ao carregar estoque');
 
                 let items = await response.json();
 
-                // Cruzamento de dados com imagens locais (mantido igual)
+                // Cruzamento de dados com imagens locais
                 if (window.menuCardapioLoja) {
                     items = items.map(apiItem => {
                         const localItem = window.menuCardapioLoja.find(l => l.id === apiItem.id || l.name === apiItem.name);
-
                         if (localItem) {
                             return {
                                 ...apiItem,
@@ -434,5 +327,4 @@
     </script>
     <script src="premium.js"></script>
 </body>
-
 </html>
