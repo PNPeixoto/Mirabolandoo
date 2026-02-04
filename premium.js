@@ -1,10 +1,19 @@
 /**
- * MIRABOLANDO - PREMIUM INTERACTIONS
+ * MIRABOLANDO - PREMIUM INTERACTIONS (FIXED)
  * Shared JavaScript for all pages
  */
 
 (function () {
     'use strict';
+
+    // Helper function to safely check matches
+    // Isso impede o erro "e.target.matches is not a function"
+    const safeMatch = (element, selector) => {
+        if (!element || typeof element.matches !== 'function') {
+            return false;
+        }
+        return element.matches(selector);
+    };
 
     // ============================================
     // CUSTOM CURSOR
@@ -35,16 +44,18 @@
         }
         animateCursor();
 
-        // Hover effects
+        // Hover effects (Safe Version)
+        const hoverSelectors = 'a, button, .card, .nav-toggle, .cta-button, .social-btn, .btn-order';
+
         document.addEventListener('mouseenter', (e) => {
-            if (e.target.matches('a, button, .card, .nav-toggle, .cta-button, .social-btn, .btn-order')) {
+            if (safeMatch(e.target, hoverSelectors)) {
                 cursor.classList.add('hover');
                 cursorDot.style.opacity = '0';
             }
         }, true);
 
         document.addEventListener('mouseleave', (e) => {
-            if (e.target.matches('a, button, .card, .nav-toggle, .cta-button, .social-btn, .btn-order')) {
+            if (safeMatch(e.target, hoverSelectors)) {
                 cursor.classList.remove('hover');
                 cursorDot.style.opacity = '1';
             }
