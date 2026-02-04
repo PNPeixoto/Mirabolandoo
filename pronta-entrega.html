@@ -2,635 +2,780 @@
 <html lang="pt-BR">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description"
-content="Bolos prontos para entrega na Mirabolando Confeitaria. Compre direto e leve no ato!">
-<title>Mirabolando - Pronta Entrega</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
-rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-/* =========================================
-CORREÇÕES CRÍTICAS DE SISTEMA (PRIORIDADE)
-========================================= */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Bolos prontos para entrega na Mirabolando Confeitaria. Compre direto e leve no ato!">
+    <title>Mirabolando - Pronta Entrega</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* =========================================
+           CORREÇÕES DE SISTEMA (SCROLL CORRIGIDO)
+           ========================================= */
 
-html, body {
-/* Garante rolagem suave e sem travar */
-height: auto !important;
-min-height: 100%;
-width: 100%;
-overflow-x: hidden;
-overflow-y: auto !important;
+        html {
+            /* Garante que a altura base seja 100% para permitir rolagem */
+            height: 100%;
+            /* Força o controle de rolagem no elemento raiz */
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
 
-/* Remove o efeito elástico que faz "agarrar e voltar" */
-overscroll-behavior-y: none;
--webkit-overflow-scrolling: touch; /* Essencial para iOS */
-}
+        body {
+            /* O corpo deve ter no mínimo o tamanho da tela, mas crescer conforme o conteúdo */
+            min-height: 100%;
+            height: auto;
+            width: 100%;
+            position: relative;
+            
+            /* Remove a rolagem horizontal indesejada */
+            overflow-x: hidden;
+            /* Deixa a rolagem vertical visível para o HTML controlar */
+            overflow-y: visible;
+            
+            /* Melhora a performance de toque no iOS */
+            -webkit-overflow-scrolling: touch;
+        }
 
-/* Previne piscadas (Flickering) forçando aceleração de GPU */
-header, .menu-container, .card, .hero-bg, nav, .intro-pronta {
--webkit-backface-visibility: hidden;
-backface-visibility: hidden;
-transform: translate3d(0, 0, 0);
-perspective: 1000px;
-}
+        /* Previne piscadas (Flickering) forçando aceleração de GPU */
+        header,
+        .menu-container,
+        .card,
+        .hero-bg,
+        nav,
+        .intro-pronta {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            perspective: 1000px;
+        }
 
-/* Pronta Entrega Specific Styles */
-.pronta-entrega-badge {
-position: absolute;
-top: 10px;
-left: 10px;
-background: linear-gradient(135deg, #10b981, #059669);
-color: white;
-padding: 4px 10px;
-border-radius: 15px;
-font-size: 0.65rem;
-font-weight: 600;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-z-index: 2;
-}
+        /* Pronta Entrega Specific Styles */
+        .pronta-entrega-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
 
-.stock-badge {
-position: absolute;
-top: 10px;
-right: 10px;
-background: linear-gradient(135deg, #f59e0b, #d97706);
-color: white;
-padding: 4px 10px;
-border-radius: 15px;
-font-size: 0.65rem;
-font-weight: 600;
-z-index: 2;
-}
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            z-index: 2;
+        }
 
-.quantity-info {
-display: flex;
-align-items: center;
-gap: 0.5rem;
-margin-top: 0.5rem;
-padding: 0.5rem 0.8rem;
-background: var(--creme-antigo);
-border-radius: 8px;
-font-size: 0.8rem;
-}
+        .quantity-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            background: var(--creme-antigo);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
 
-.quantity-info .qty {
-font-weight: 700;
-color: var(--vinho-profundo);
-}
+        .quantity-info .qty {
+            font-weight: 700;
+            color: var(--vinho-profundo);
+        }
 
-.intro-pronta {
-background: linear-gradient(135deg, #10b981, #059669);
-color: white;
-padding: 1.5rem 2rem;
-border-radius: 16px;
-text-align: center;
-margin-bottom: 2rem;
-}
+        .intro-pronta {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-.intro-pronta h2 {
-color: white;
-margin-bottom: 0.5rem;
-}
+        .intro-pronta h2 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
 
-.intro-pronta h2::after {
-display: none;
-}
+        .intro-pronta h2::after {
+            display: none;
+        }
 
-.intro-pronta p {
-color: rgba(255, 255, 255, 0.9);
-}
+        .intro-pronta p {
+            color: rgba(255, 255, 255, 0.9);
+        }
 
-/* Sold Out Styles */
-.card.sold-out .card-img {
-filter: grayscale(100%);
-opacity: 0.8;
-}
+        /* Sold Out Styles */
+        .card.sold-out .card-img {
+            filter: grayscale(100%);
+            opacity: 0.8;
+        }
 
-.sold-out-overlay {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(255, 255, 255, 0.2);
-display: flex;
-align-items: center;
-justify-content: center;
-z-index: 5;
-pointer-events: none;
-}
+        .sold-out-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+        }
 
-.sold-out-badge-text {
-background: #ef4444;
-color: white;
-padding: 0.8rem 2rem;
-font-family: var(--font-display);
-font-weight: 700;
-font-size: 1.2rem;
-text-transform: uppercase;
-border-radius: 8px;
-transform: rotate(-10deg);
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-border: 2px solid white;
-letter-spacing: 2px;
-}
+        .sold-out-badge-text {
+            background: #ef4444;
+            color: white;
+            padding: 0.8rem 2rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border-radius: 8px;
+            transform: rotate(-10deg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+            letter-spacing: 2px;
+        }
 
-/* ============================================
-MIRABOLANDO - PREMIUM ANIMATION SYSTEM
-(Otimizado para não piscar)
-============================================ */
+        /* ============================================
+           MIRABOLANDO - PREMIUM ANIMATION SYSTEM
+           (Otimizado para não piscar)
+           ============================================ */
 
-:root {
---spring-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
---spring-smooth: cubic-bezier(0.34, 1.56, 0.64, 1);
---ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
---ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
---ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
---duration-fast: 0.3s;
---duration-normal: 0.6s;
---duration-slow: 1.2s;
---duration-slower: 2s;
-}
+        :root {
+            --spring-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --spring-smooth: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+            --duration-fast: 0.3s;
+            --duration-normal: 0.6s;
+            --duration-slow: 1.2s;
+            --duration-slower: 2s;
+        }
 
-/* CUSTOM CURSOR */
-.custom-cursor {
-width: 20px;
-height: 20px;
-background: transparent;
-border: 2px solid var(--vinho-profundo);
-border-radius: 50%;
-position: fixed;
-pointer-events: none;
-z-index: 9999;
-transition: transform 0.15s var(--ease-out-expo), width 0.3s var(--spring-bounce), height 0.3s var(--spring-bounce), background 0.3s ease, border-color 0.3s ease;
-transform: translate(-50%, -50%);
-mix-blend-mode: difference;
-}
+        /* CUSTOM CURSOR */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border: 2px solid var(--vinho-profundo);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s var(--ease-out-expo), width 0.3s var(--spring-bounce), height 0.3s var(--spring-bounce), background 0.3s ease, border-color 0.3s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
 
-.custom-cursor.hover {
-width: 60px;
-height: 60px;
-background: rgba(196, 154, 108, 0.1);
-border-color: var(--bronze-dourado);
-}
+        .custom-cursor.hover {
+            width: 60px;
+            height: 60px;
+            background: rgba(196, 154, 108, 0.1);
+            border-color: var(--bronze-dourado);
+        }
 
-.custom-cursor.click {
-transform: translate(-50%, -50%) scale(0.8);
-}
+        .custom-cursor.click {
+            transform: translate(-50%, -50%) scale(0.8);
+        }
 
-.cursor-dot {
-width: 6px;
-height: 6px;
-background: var(--vinho-profundo);
-border-radius: 50%;
-position: fixed;
-pointer-events: none;
-z-index: 10000;
-transform: translate(-50%, -50%);
-transition: transform 0.1s ease, opacity 0.3s ease;
-}
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--vinho-profundo);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease, opacity 0.3s ease;
+        }
 
-/* Desativa cursor customizado em touch/mobile para evitar bugs de scroll */
-@media (hover: none) {
-.custom-cursor, .cursor-dot {
-display: none !important;
-}
-}
+        /* Desativa cursor customizado em touch/mobile para evitar bugs de scroll */
+        @media (hover: none) {
 
-/* SCROLL PROGRESS */
-.scroll-progress {
-position: fixed;
-top: 0;
-left: 0;
-width: 0%;
-height: 3px;
-background: linear-gradient(90deg, var(--vinho-profundo), var(--bronze-dourado), var(--rosa-damasco));
-z-index: 9998;
-transition: width 0.1s linear;
-}
+            .custom-cursor,
+            .cursor-dot {
+                display: none !important;
+            }
+        }
 
-/* HERO SECTION */
-.hero-bg {
-background:
-radial-gradient(ellipse at 20% 80%, rgba(232, 175, 161, 0.3) 0%, transparent 50%),
-radial-gradient(ellipse at 80% 20%, rgba(196, 154, 108, 0.25) 0%, transparent 50%),
-radial-gradient(ellipse at 50% 50%, rgba(107, 45, 60, 0.08) 0%, transparent 70%),
-linear-gradient(180deg, var(--branco-quente) 0%, var(--creme-antigo) 100%);
-animation: gradientShift 20s ease-in-out infinite alternate;
-will-change: transform; /* Otimização */
-}
+        /* SCROLL PROGRESS */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--vinho-profundo), var(--bronze-dourado), var(--rosa-damasco));
+            z-index: 9998;
+            transition: width 0.1s linear;
+        }
 
-@keyframes gradientShift {
-0% { background-position: 0% 50%; }
-100% { background-position: 100% 50%; }
-}
+        /* HERO SECTION */
+        .hero-bg {
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(232, 175, 161, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(196, 154, 108, 0.25) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(107, 45, 60, 0.08) 0%, transparent 70%),
+                linear-gradient(180deg, var(--branco-quente) 0%, var(--creme-antigo) 100%);
+            animation: gradientShift 20s ease-in-out infinite alternate;
+            will-change: transform;
+            /* Otimização */
+        }
 
-.hero-circle {
-animation: morphShape 20s ease-in-out infinite alternate, pulseGlow 4s ease-in-out infinite;
-}
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
 
-@keyframes pulseGlow {
-0%, 100% { filter: blur(60px); opacity: 0.3; }
-50% { filter: blur(80px); opacity: 0.4; }
-}
+            100% {
+                background-position: 100% 50%;
+            }
+        }
 
-.hero-section::before {
-animation: floatParticle 10s ease-in-out infinite, pulseBorder 3s ease-in-out infinite alternate;
-}
+        .hero-circle {
+            animation: morphShape 20s ease-in-out infinite alternate, pulseGlow 4s ease-in-out infinite;
+        }
 
-.hero-section::after {
-animation: floatParticle 8s ease-in-out infinite reverse, scaleBreath 4s ease-in-out infinite;
-}
+        @keyframes pulseGlow {
 
-@keyframes floatParticle {
-0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
-25% { transform: translateY(-30px) translateX(15px) rotate(90deg); }
-50% { transform: translateY(-20px) translateX(-10px) rotate(180deg); }
-75% { transform: translateY(-40px) translateX(5px) rotate(270deg); }
-}
+            0%,
+            100% {
+                filter: blur(60px);
+                opacity: 0.3;
+            }
 
-@keyframes pulseBorder {
-0% { border-width: 1px; opacity: 0.3; }
-100% { border-width: 2px; opacity: 0.6; }
-}
+            50% {
+                filter: blur(80px);
+                opacity: 0.4;
+            }
+        }
 
-@keyframes scaleBreath {
-0%, 100% { transform: scale(1); }
-50% { transform: scale(1.2); }
-}
+        .hero-section::before {
+            animation: floatParticle 10s ease-in-out infinite, pulseBorder 3s ease-in-out infinite alternate;
+        }
 
-/* TEXT REVEAL */
-.hero-title {
-opacity: 0;
-animation: heroTitleReveal 1.4s var(--ease-out-expo) forwards 0.2s;
-}
+        .hero-section::after {
+            animation: floatParticle 8s ease-in-out infinite reverse, scaleBreath 4s ease-in-out infinite;
+        }
 
-@keyframes heroTitleReveal {
-0% { opacity: 0; transform: translateY(80px) rotateX(-15deg); filter: blur(10px); }
-50% { filter: blur(5px); }
-100% { opacity: 1; transform: translateY(0) rotateX(0deg); filter: blur(0); }
-}
+        @keyframes floatParticle {
 
-.hero-title span {
-display: inline-block;
-animation: spanReveal 1s var(--spring-bounce) forwards 0.6s;
-opacity: 0;
-transform: translateY(30px) scale(0.9);
-}
+            0%,
+            100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+            }
 
-@keyframes spanReveal {
-to { opacity: 1; transform: translateY(0) scale(1); }
-}
+            25% {
+                transform: translateY(-30px) translateX(15px) rotate(90deg);
+            }
 
-.hero-title span::after {
-transform: scaleX(0) skewX(-5deg);
-transform-origin: left;
-animation: underlineReveal 0.8s var(--ease-out-expo) forwards 1s;
-}
+            50% {
+                transform: translateY(-20px) translateX(-10px) rotate(180deg);
+            }
 
-@keyframes underlineReveal {
-to { transform: scaleX(1) skewX(-5deg); }
-}
+            75% {
+                transform: translateY(-40px) translateX(5px) rotate(270deg);
+            }
+        }
 
-.hero-subtitle {
-opacity: 0;
-animation: subtitleReveal 1s var(--ease-out-expo) forwards 0.8s;
-}
+        @keyframes pulseBorder {
+            0% {
+                border-width: 1px;
+                opacity: 0.3;
+            }
 
-@keyframes subtitleReveal {
-0% { opacity: 0; transform: translateY(40px); letter-spacing: 8px; }
-100% { opacity: 1; transform: translateY(0); letter-spacing: 4px; }
-}
+            100% {
+                border-width: 2px;
+                opacity: 0.6;
+            }
+        }
 
-/* CTA BUTTON */
-.cta-button {
-opacity: 0;
-animation: ctaReveal 1s var(--spring-bounce) forwards 1.1s;
-transition: all 0.4s var(--spring-smooth);
-}
+        @keyframes scaleBreath {
 
-@keyframes ctaReveal {
-0% { opacity: 0; transform: translateY(50px) scale(0.8); }
-100% { opacity: 1; transform: translateY(0) scale(1); }
-}
+            0%,
+            100% {
+                transform: scale(1);
+            }
 
-.cta-button:hover {
-transform: translateY(-5px) scale(1.02);
-box-shadow: 0 15px 40px rgba(107, 45, 60, 0.4), 0 0 0 2px rgba(196, 154, 108, 0.3);
-}
+            50% {
+                transform: scale(1.2);
+            }
+        }
 
-.cta-button:active {
-transform: translateY(-2px) scale(0.98);
-}
+        /* TEXT REVEAL */
+        .hero-title {
+            opacity: 0;
+            animation: heroTitleReveal 1.4s var(--ease-out-expo) forwards 0.2s;
+        }
 
-.cta-button::before {
-background: linear-gradient(120deg, transparent 0%, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%, transparent 100%);
-transition: none;
-animation: buttonShimmer 3s ease-in-out infinite;
-}
+        @keyframes heroTitleReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(80px) rotateX(-15deg);
+                filter: blur(10px);
+            }
 
-@keyframes buttonShimmer {
-0% { left: -100%; }
-30%, 100% { left: 100%; }
-}
+            50% {
+                filter: blur(5px);
+            }
 
-/* NAVIGATION OPTIMIZED */
-.home-nav {
-transition: all 0.6s var(--ease-out-expo);
-}
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+                filter: blur(0);
+            }
+        }
 
-.home-nav.scrolled {
-/* Otimização: Blur reduzido para não travar scroll */
-backdrop-filter: blur(10px);
--webkit-backdrop-filter: blur(10px);
-background: rgba(255, 251, 247, 0.9);
-}
+        .hero-title span {
+            display: inline-block;
+            animation: spanReveal 1s var(--spring-bounce) forwards 0.6s;
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+        }
 
-.home-logo:hover {
-text-shadow: 0 0 30px rgba(107, 45, 60, 0.3);
-transform: scale(1.02);
-}
+        @keyframes spanReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-.nav-link:hover {
-text-shadow: 0 0 20px rgba(107, 45, 60, 0.2);
-}
+        .hero-title span::after {
+            transform: scaleX(0) skewX(-5deg);
+            transform-origin: left;
+            animation: underlineReveal 0.8s var(--ease-out-expo) forwards 1s;
+        }
 
-.nav-link::before {
-background: linear-gradient(90deg, var(--bronze-dourado), var(--rosa-damasco));
-height: 2px;
-transition: all 0.5s var(--spring-bounce);
-}
+        @keyframes underlineReveal {
+            to {
+                transform: scaleX(1) skewX(-5deg);
+            }
+        }
 
-.nav-links {
-transition: all 0.5s var(--ease-out-expo);
-}
+        .hero-subtitle {
+            opacity: 0;
+            animation: subtitleReveal 1s var(--ease-out-expo) forwards 0.8s;
+        }
 
-@media (max-width: 768px) {
-.nav-links {
-backdrop-filter: blur(20px);
-background: rgba(255, 251, 247, 0.98);
-}
-.nav-links.active .nav-link {
-animation: menuItemSlide 0.5s var(--spring-bounce) forwards;
-opacity: 0;
-}
-.nav-links.active .nav-link:nth-child(1) { animation-delay: 0.1s; }
-.nav-links.active .nav-link:nth-child(2) { animation-delay: 0.15s; }
-.nav-links.active .nav-link:nth-child(3) { animation-delay: 0.2s; }
-.nav-links.active .nav-link:nth-child(4) { animation-delay: 0.25s; }
-.nav-links.active .nav-link:nth-child(5) { animation-delay: 0.3s; }
-.nav-links.active .nav-link:nth-child(6) { animation-delay: 0.35s; }
-}
+        @keyframes subtitleReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+                letter-spacing: 8px;
+            }
 
-@keyframes menuItemSlide {
-from { opacity: 0; transform: translateX(30px); }
-to { opacity: 1; transform: translateX(0); }
-}
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                letter-spacing: 4px;
+            }
+        }
 
-/* 3D CARD TILT */
-.tilt-card {
-transform-style: preserve-3d;
-perspective: 1000px;
-transition: transform 0.3s var(--ease-out-expo);
-will-change: transform;
-}
+        /* CTA BUTTON */
+        .cta-button {
+            opacity: 0;
+            animation: ctaReveal 1s var(--spring-bounce) forwards 1.1s;
+            transition: all 0.4s var(--spring-smooth);
+        }
 
-.tilt-card:hover {
-transform: perspective(1000px) rotateX(var(--rotateX, 0deg)) rotateY(var(--rotateY, 0deg)) scale(1.02);
-}
+        @keyframes ctaReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.8);
+            }
 
-.tilt-card .tilt-inner {
-transform: translateZ(30px);
-transition: transform 0.3s var(--ease-out-expo);
-}
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-/* REDUCED MOTION */
-@media (prefers-reduced-motion: reduce) {
-*, *::before, *::after {
-animation-duration: 0.01ms !important;
-animation-iteration-count: 1 !important;
-transition-duration: 0.01ms !important;
-animation-delay: 0s !important;
-}
-.custom-cursor, .cursor-dot { display: none; }
-.hero-title, .hero-subtitle, .cta-button, .section.reveal, .footer-col { opacity: 1; transform: none; }
-}
-</style>
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(107, 45, 60, 0.4), 0 0 0 2px rgba(196, 154, 108, 0.3);
+        }
+
+        .cta-button:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .cta-button::before {
+            background: linear-gradient(120deg, transparent 0%, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%, transparent 100%);
+            transition: none;
+            animation: buttonShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes buttonShimmer {
+            0% {
+                left: -100%;
+            }
+
+            30%,
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* NAVIGATION OPTIMIZED */
+        .home-nav {
+            transition: all 0.6s var(--ease-out-expo);
+        }
+
+        .home-nav.scrolled {
+            /* Otimização: Blur reduzido para não travar scroll */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 251, 247, 0.9);
+        }
+
+        .home-logo:hover {
+            text-shadow: 0 0 30px rgba(107, 45, 60, 0.3);
+            transform: scale(1.02);
+        }
+
+        .nav-link:hover {
+            text-shadow: 0 0 20px rgba(107, 45, 60, 0.2);
+        }
+
+        .nav-link::before {
+            background: linear-gradient(90deg, var(--bronze-dourado), var(--rosa-damasco));
+            height: 2px;
+            transition: all 0.5s var(--spring-bounce);
+        }
+
+        .nav-links {
+            transition: all 0.5s var(--ease-out-expo);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                backdrop-filter: blur(20px);
+                background: rgba(255, 251, 247, 0.98);
+            }
+
+            .nav-links.active .nav-link {
+                animation: menuItemSlide 0.5s var(--spring-bounce) forwards;
+                opacity: 0;
+            }
+
+            .nav-links.active .nav-link:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .nav-links.active .nav-link:nth-child(2) {
+                animation-delay: 0.15s;
+            }
+
+            .nav-links.active .nav-link:nth-child(3) {
+                animation-delay: 0.2s;
+            }
+
+            .nav-links.active .nav-link:nth-child(4) {
+                animation-delay: 0.25s;
+            }
+
+            .nav-links.active .nav-link:nth-child(5) {
+                animation-delay: 0.3s;
+            }
+
+            .nav-links.active .nav-link:nth-child(6) {
+                animation-delay: 0.35s;
+            }
+        }
+
+        @keyframes menuItemSlide {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 3D CARD TILT */
+        .tilt-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: transform 0.3s var(--ease-out-expo);
+            will-change: transform;
+        }
+
+        .tilt-card:hover {
+            transform: perspective(1000px) rotateX(var(--rotateX, 0deg)) rotateY(var(--rotateY, 0deg)) scale(1.02);
+        }
+
+        .tilt-card .tilt-inner {
+            transform: translateZ(30px);
+            transition: transform 0.3s var(--ease-out-expo);
+        }
+
+        /* REDUCED MOTION */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                animation-delay: 0s !important;
+            }
+
+            .custom-cursor,
+            .cursor-dot {
+                display: none;
+            }
+
+            .hero-title,
+            .hero-subtitle,
+            .cta-button,
+            .section.reveal,
+            .footer-col {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<div class="fullscreen-loader-light" id="fullscreenLoader">
-<div class="loader-content-light">
-<div class="loader-logo-light">
-<img src="assets/logo-mirabolando.jpg" alt="Mirabolando" class="loader-logo-img-light">
-<div class="loader-ring-light"></div>
-</div>
-<h2 class="loader-brand-light">Mirabolando</h2>
-<p class="loader-tagline-light">Carregando delícias...</p>
-<div class="loader-dots-light">
-<span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-</div>
+    <div class="fullscreen-loader-light" id="fullscreenLoader">
+        <div class="loader-content-light">
+            <div class="loader-logo-light">
+                <img src="assets/logo-mirabolando.jpg" alt="Mirabolando" class="loader-logo-img-light">
+                <div class="loader-ring-light"></div>
+            </div>
+            <h2 class="loader-brand-light">Mirabolando</h2>
+            <p class="loader-tagline-light">Carregando delícias...</p>
+            <div class="loader-dots-light">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
 
-<script>
-(function () {
-// Garante que o scroll esteja oculto durante o carregamento
-document.body.style.overflow = 'hidden';
+    <script>
+        (function () {
+            // Garante que o scroll esteja oculto durante o carregamento
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
 
-function finishLoading() {
-var loader = document.getElementById('fullscreenLoader');
-if (loader) {
-loader.style.opacity = '0';
-loader.style.visibility = 'hidden';
-loader.style.pointerEvents = 'none';
+            function finishLoading() {
+                var loader = document.getElementById('fullscreenLoader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    loader.style.visibility = 'hidden';
+                    loader.style.pointerEvents = 'none';
 
-setTimeout(function () {
-if (loader.parentNode) {
-loader.parentNode.removeChild(loader);
-}
-// CRÍTICO: Libera o scroll explicitamente
-document.body.style.overflow = '';
-document.body.style.overflowY = 'auto';
-document.documentElement.style.overflowY = 'auto';
-}, 600);
-}
-}
+                    setTimeout(function () {
+                        if (loader.parentNode) {
+                            loader.parentNode.removeChild(loader);
+                        }
+                        
+                        // CORREÇÃO: Limpa os estilos inline para que o CSS assuma o controle
+                        document.documentElement.style.overflow = '';
+                        document.body.style.overflow = '';
+                        
+                        // Garante a remoção de propriedades residuais
+                        document.documentElement.style.overflowY = '';
+                        document.body.style.overflowY = '';
+                        
+                    }, 600);
+                }
+            }
 
-// Tenta finalizar ao carregar tudo ou após 3 segundos
-window.addEventListener('load', finishLoading);
-setTimeout(finishLoading, 3000);
-})();
-</script>
+            // Tenta finalizar ao carregar tudo ou após 3 segundos
+            window.addEventListener('load', finishLoading);
+            setTimeout(finishLoading, 3000);
+        })();
+    </script>
 
-<div class="custom-cursor" id="customCursor"></div>
-<div class="cursor-dot" id="cursorDot"></div>
+    <div class="custom-cursor" id="customCursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
 
-<div class="scroll-progress" id="scrollProgress"></div>
+    <div class="scroll-progress" id="scrollProgress"></div>
 
-<header>
-<div class="header-content">
-<div class="logo-area">
-<img src="assets/logo-mirabolando.jpg" alt="Logo Mirabolando"
-style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.8rem; box-shadow: 0 4px 15px rgba(107, 45, 60, 0.2);">
-<h1>Mirabolando</h1>
-<p class="subtitle">Pronta Entrega</p>
-</div>
-<nav>
-<a href="index.html" data-i18n="nav.home">Home</a>
-<a href="cardapio.html" data-i18n="nav.cardapio">Cardápio</a>
-<a href="pronta-entrega.html" class="active" data-i18n="nav.pronta_entrega">Pronta Entrega</a>
-<a href="encomenda.html" data-i18n="nav.encomendas">Encomendas</a>
-<a href="cole.html" data-i18n="nav.cole">Colé</a>
-</nav>
-</div>
-</header>
+    <header>
+        <div class="header-content">
+            <div class="logo-area">
+                <img src="assets/logo-mirabolando.jpg" alt="Logo Mirabolando"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.8rem; box-shadow: 0 4px 15px rgba(107, 45, 60, 0.2);">
+                <h1>Mirabolando</h1>
+                <p class="subtitle">Pronta Entrega</p>
+            </div>
+            <nav>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="cardapio.html" data-i18n="nav.cardapio">Cardápio</a>
+                <a href="pronta-entrega.html" class="active" data-i18n="nav.pronta_entrega">Pronta Entrega</a>
+                <a href="encomenda.html" data-i18n="nav.encomendas">Encomendas</a>
+                <a href="cole.html" data-i18n="nav.cole">Colé</a>
+            </nav>
+        </div>
+    </header>
 
-<main>
-<div class="intro-pronta">
-<h2>🎂 Pronta Entrega</h2>
-<p>Bolos disponíveis agora! Compre e leve no ato.</p>
-</div>
+    <main>
+        <div class="intro-pronta">
+            <h2>🎂 Pronta Entrega</h2>
+            <p>Bolos disponíveis agora! Compre e leve no ato.</p>
+        </div>
 
-<div class="warning-banner">
-<strong>Atenção:</strong> Os produtos de pronta entrega são limitados e podem esgotar rapidamente. Para
-garantir seu bolo, recomendamos fazer uma <a href="encomenda.html">encomenda antecipada</a>.
-</div>
+        <div class="warning-banner">
+            <strong>Atenção:</strong> Os produtos de pronta entrega são limitados e podem esgotar rapidamente. Para
+            garantir seu bolo, recomendamos fazer uma <a href="encomenda.html">encomenda antecipada</a>.
+        </div>
 
-<div class="search-container" style="justify-content: center; margin-bottom: 2rem;">
-<div class="search-input-wrapper" style="max-width: 600px;">
-<i class="search-icon">🔍</i>
-<input type="text" id="searchInput" class="search-input" placeholder="Buscar pronta entrega...">
-</div>
-</div>
+        <div class="search-container" style="justify-content: center; margin-bottom: 2rem;">
+            <div class="search-input-wrapper" style="max-width: 600px;">
+                <i class="search-icon">🔍</i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar pronta entrega...">
+            </div>
+        </div>
 
-<section class="menu-container" id="menu-container">
-</section>
-</main>
+        <section class="menu-container" id="menu-container">
+        </section>
+    </main>
 
-<footer>
-<div class="footer-content">
-<p>&copy; 2026 Mirabolando Confeitaria.</p>
-<p>Feito com amor e açúcar.</p>
-</div>
-</footer>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Mirabolando Confeitaria.</p>
+            <p>Feito com amor e açúcar.</p>
+        </div>
+    </footer>
 
-<script src="translations.js"></script>
-<script src="data-cardapio.js"></script>
-<script src="shared-ui.js"></script>
-<script src="language-switcher.js"></script>
-<script src="data.js"></script>
-<script>
-// Supabase Configuration
-const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
+    <script src="translations.js"></script>
+    <script src="data-cardapio.js"></script>
+    <script src="shared-ui.js"></script>
+    <script src="language-switcher.js"></script>
+    <script src="data.js"></script>
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
 
-document.addEventListener('DOMContentLoaded', async () => {
-await loadProntaEntrega();
-// A função hideFullscreenLoader aqui é redundante com o script do topo, mas mantida por segurança
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadProntaEntrega();
 
-// Listen for language changes to re-render cards
-window.addEventListener('languageChanged', async () => {
-await loadProntaEntrega();
-});
+            // Listen for language changes to re-render cards
+            window.addEventListener('languageChanged', async () => {
+                await loadProntaEntrega();
+            });
 
-// Re-render once languageManager is initialized
-setTimeout(async () => {
-if (window.languageManager) {
-await loadProntaEntrega();
-}
-}, 100);
-});
+            // Re-render once languageManager is initialized
+            setTimeout(async () => {
+                if (window.languageManager) {
+                    await loadProntaEntrega();
+                }
+            }, 100);
+        });
 
-async function loadProntaEntrega() {
-const container = document.getElementById('menu-container');
-container.innerHTML = '<p style="text-align:center; width:100%;">Carregando bolos disponíveis...</p>';
+        async function loadProntaEntrega() {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '<p style="text-align:center; width:100%;">Carregando bolos disponíveis...</p>';
 
-try {
-// Fetch from Supabase for real-time stock
-const response = await fetch(
-`${SUPABASE_URL}/rest/v1/menu_items?menu_type=eq.pronta_entrega&active=eq.true&quantity=gte.0&order=name`,
-{
-headers: {
-'apikey': SUPABASE_ANON_KEY,
-'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-}
-}
-);
+            try {
+                // Fetch from Supabase for real-time stock
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/menu_items?menu_type=eq.pronta_entrega&active=eq.true&quantity=gte.0&order=name`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
 
-if (!response.ok) throw new Error('Erro ao carregar');
+                if (!response.ok) throw new Error('Erro ao carregar');
 
-let items = await response.json();
+                let items = await response.json();
 
-// Patch images and translations from local data
-if (window.menuCardapioLoja) {
-items = items.map(apiItem => {
-const localItem = window.menuCardapioLoja.find(l => l.id === apiItem.id || l.name === apiItem.name);
+                // Patch images and translations from local data
+                if (window.menuCardapioLoja) {
+                    items = items.map(apiItem => {
+                        const localItem = window.menuCardapioLoja.find(l => l.id === apiItem.id || l.name === apiItem.name);
 
-if (localItem) {
-return {
-...apiItem,
-image: localItem.image,
-imagePosition: localItem.imagePosition || 'center center',
-translations: localItem.translations
-};
-}
-return apiItem;
-});
-}
+                        if (localItem) {
+                            return {
+                                ...apiItem,
+                                image: localItem.image,
+                                imagePosition: localItem.imagePosition || 'center center',
+                                translations: localItem.translations
+                            };
+                        }
+                        return apiItem;
+                    });
+                }
 
-window.prontaEntregaItems = items;
-renderMenu(items);
-setupSearch();
-} catch (error) {
-console.error('Error loading pronta entrega:', error);
-container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum bolo disponível no momento. Volte em breve!</p>';
-}
-}
+                window.prontaEntregaItems = items;
+                renderMenu(items);
+                setupSearch();
+            } catch (error) {
+                console.error('Error loading pronta entrega:', error);
+                container.innerHTML = '<p style="text-align:center; width:100%;">Nenhum bolo disponível no momento. Volte em breve!</p>';
+            }
+        }
 
-function renderMenu(items) {
-if (window.SharedUI) {
-SharedUI.renderMenu(items, 'menu-container', {
-type: 'pronta_entrega',
-showQuantity: true
-});
-} else {
-console.error('SharedUI not loaded');
-}
-}
-</script>
-<script>
-function setupSearch() {
-const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-searchInput.addEventListener('input', (e) => {
-filterItems(e.target.value);
-});
-}
-}
+        function renderMenu(items) {
+            if (window.SharedUI) {
+                SharedUI.renderMenu(items, 'menu-container', {
+                    type: 'pronta_entrega',
+                    showQuantity: true
+                });
+            } else {
+                console.error('SharedUI not loaded');
+            }
+        }
+    </script>
+    <script>
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterItems(e.target.value);
+                });
+            }
+        }
 
-function filterItems(searchTerm) {
-if (!window.prontaEntregaItems) return;
+        function filterItems(searchTerm) {
+            if (!window.prontaEntregaItems) return;
 
-searchTerm = searchTerm.toLowerCase().trim();
-const filtered = window.prontaEntregaItems.filter(item => {
-const nameMatch = item.name.toLowerCase().includes(searchTerm);
-const descMatch = (item.short_desc || '').toLowerCase().includes(searchTerm);
-return nameMatch || descMatch;
-});
+            searchTerm = searchTerm.toLowerCase().trim();
+            const filtered = window.prontaEntregaItems.filter(item => {
+                const nameMatch = item.name.toLowerCase().includes(searchTerm);
+                const descMatch = (item.short_desc || '').toLowerCase().includes(searchTerm);
+                return nameMatch || descMatch;
+            });
 
-renderMenu(filtered);
-}
-</script>
-<script src="premium.js"></script>
+            renderMenu(filtered);
+        }
+    </script>
+    <script src="premium.js"></script>
 </body>
 
 </html>
