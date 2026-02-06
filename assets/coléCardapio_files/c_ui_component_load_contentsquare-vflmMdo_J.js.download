@@ -1,5 +1,0 @@
-!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="2c168df9-019c-36e4-9893-81609663605f")}catch(e){}}();
-define(["require","exports","./c_spectrum_util_raf_throttle","./e_core_exception"],(function(e,t,n,a){"use strict";const o=void 0!==self&&self?self:window;o._uxa=o._uxa||[];const i=o._uxa,s=async()=>{"undefined"!=typeof window&&(i.push(["setPath",window.location.pathname+window.location.hash.replace("#","?__")]),await new Promise((function(t,n){e(["./c_contentsquare"],t,n)})))};t.initContentsquare=s,t.loadContentsquare=e=>{"warp_page_edison"===n.getPageName()&&e.analytics&&s()}}));
-//# sourceMappingURL=c_ui_component_load_contentsquare.js-vflHczW9q.map
-
-//# debugId=2c168df9-019c-36e4-9893-81609663605f

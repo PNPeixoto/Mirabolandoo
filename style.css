@@ -1345,3 +1345,249 @@ footer p:last-child {
         justify-content: center;
     }
 }
+
+/* ============================================
+   MOBILE OPTIMIZATION - TOUCH TARGETS
+   Following WCAG 2.5.5 for 44x44px minimum
+   ============================================ */
+
+@media (max-width: 768px) {
+
+    /* Ensure minimum touch target of 44px */
+    .btn-order,
+    .btn-view-cart,
+    .cta-button,
+    .filter-btn,
+    .nav-link,
+    .social-btn,
+    .lang-btn,
+    button,
+    [type="button"],
+    [type="submit"] {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px 16px;
+    }
+
+    /* Increase tap targets for card actions */
+    .card {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(107, 45, 60, 0.1);
+    }
+
+    /* Navigation toggle bigger touch target */
+    .nav-toggle {
+        min-width: 48px;
+        min-height: 48px;
+        padding: 12px;
+    }
+
+    /* Better spacing for mobile nav links */
+    .nav-links .nav-link {
+        padding: 16px 24px;
+        font-size: 1.1rem;
+    }
+
+    /* Size options need bigger targets */
+    .size-option {
+        min-height: 48px;
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+
+    /* Quantity buttons need bigger targets */
+    .qty-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 1.2rem;
+    }
+
+    /* Cart item actions */
+    .cart-item-remove {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px;
+    }
+
+    /* Search input bigger for easier typing */
+    #search-input,
+    input[type="text"],
+    input[type="search"],
+    textarea {
+        min-height: 48px;
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        padding: 12px 16px;
+    }
+
+    /* Modal close button bigger */
+    .modal-close,
+    .close-btn {
+        min-width: 48px;
+        min-height: 48px;
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================
+   MOBILE SAFE AREAS (Notch, Home Indicator)
+   ============================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+
+    .sticky-cart,
+    .fixed-bottom,
+    footer {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+
+    .home-nav {
+        padding-left: calc(1rem + env(safe-area-inset-left));
+        padding-right: calc(1rem + env(safe-area-inset-right));
+    }
+}
+
+/* ============================================
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+
+    /* Disable complex transforms for performance */
+    .card:hover {
+        -webkit-transform: translateY(-5px);
+        -ms-transform: translateY(-5px);
+        transform: translateY(-5px);
+    }
+
+    /* Optimize scroll performance */
+    .menu-grid,
+    .cards-grid,
+    .container {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Reduce animation complexity */
+    * {
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
+
+    /* Prevent text resize on orientation change */
+    html {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* Improve scrolling */
+    body {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: hidden;
+    }
+
+    /* Disable hover effects that don't work well on touch */
+    .card:hover .card-img,
+    .expositor-img-container:hover .expositor-img {
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none;
+    }
+}
+
+/* ============================================
+   TOUCH FEEDBACK STATES
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+
+    /* Active state for touch devices */
+    .btn-order:active,
+    .cta-button:active,
+    .card:active,
+    .filter-btn:active,
+    .social-btn:active {
+        opacity: 0.8;
+        -webkit-transform: scale(0.98);
+        -ms-transform: scale(0.98);
+        transform: scale(0.98);
+    }
+
+    /* Remove hover effects on touch-only devices */
+    .card:hover {
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none;
+        -webkit-box-shadow: 0 8px 30px rgba(44, 24, 16, 0.08);
+        box-shadow: 0 8px 30px rgba(44, 24, 16, 0.08);
+    }
+
+    .btn-order:hover,
+    .cta-button:hover {
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none;
+    }
+}
+
+/* ============================================
+   PREVENT ACCIDENTAL INTERACTIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+
+    /* Prevent accidental text selection on interactive elements */
+    .btn-order,
+    .cta-button,
+    .card,
+    .nav-link,
+    .filter-btn {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    /* Prevent bounce scroll on iOS */
+    .modal-content,
+    .cart-items {
+        overscroll-behavior: contain;
+    }
+}
+
+/* ============================================
+   ACCESSIBLE FOCUS STATES
+   ============================================ */
+
+/* Visible focus for keyboard navigation */
+:focus-visible {
+    outline: 3px solid var(--bronze-dourado);
+    outline-offset: 2px;
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    background: var(--vinho-profundo);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 0 0 8px 8px;
+    text-decoration: none;
+    z-index: 10000;
+    -webkit-transition: top 0.3s ease;
+    transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
