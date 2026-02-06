@@ -11,7 +11,7 @@ const SharedUI = {
     resolveTranslation(item) {
         // Garante que existe um idioma padrão
         const currentLang = (window.languageManager && window.languageManager.currentLang) ? window.languageManager.currentLang : 'pt-BR';
-        
+
         let name = item.name || 'Item sem nome';
         let shortDesc = item.short_desc || item.shortDesc || '';
         let fullDesc = item.full_desc || item.fullDesc || '';
@@ -78,7 +78,7 @@ const SharedUI = {
     createCard(item, index, config = { type: 'encomenda' }) {
         const card = document.createElement('div');
         // Garante que quantity é um número
-        const quantity = parseInt(item.quantity) || 0; 
+        const quantity = parseInt(item.quantity) || 0;
         const isSoldOut = (config.type === 'pronta_entrega' || config.type === 'pronta-entrega') && (quantity === 0);
 
         card.className = `card ${isSoldOut ? 'sold-out' : ''}`;
@@ -102,8 +102,10 @@ const SharedUI = {
         if (config.type === 'encomenda' && (!item.price || item.price === '0' || item.price === 0)) {
             price = "Consulte";
         }
-        
-        const fromPrice = (config.type === 'encomenda' && item.options && item.options.length > 0) ? 'A partir de ' : '';
+
+        // Só adiciona "A partir de" se o preço ainda não contiver e se tiver opções
+        const alreadyHasPrefix = typeof price === 'string' && price.toLowerCase().includes('a partir de');
+        const fromPrice = (config.type === 'encomenda' && item.options && item.options.length > 0 && !alreadyHasPrefix) ? 'A partir de ' : '';
         const imagePosition = item.imagePosition || 'center center';
 
         // Badges Logic
@@ -115,7 +117,7 @@ const SharedUI = {
                 if (window.translations && window.translations[currentLang] && window.translations[currentLang]['cardapio.stock']) {
                     stockText = window.translations[currentLang]['cardapio.stock'].replace('{quantity}', quantity);
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             if (isSoldOut) {
                 badgesHtml = `<div class="sold-out-overlay"><span class="sold-out-badge-text">Esgotado</span></div>`;
@@ -191,8 +193,8 @@ const SharedUI = {
         // Event Listeners
         card.addEventListener('click', (e) => {
             // Não expande se clicar nos botões de ação ou radio buttons
-            if (e.target.closest('.size-option-label') || 
-                e.target.closest('.add-to-cart-btn') || 
+            if (e.target.closest('.size-option-label') ||
+                e.target.closest('.add-to-cart-btn') ||
                 e.target.closest('.btn-whatsapp') ||
                 e.target.closest('.favorite-btn')) return;
             this.toggleCard(card);
@@ -212,7 +214,7 @@ const SharedUI = {
         }
 
         container.innerHTML = '';
-        
+
         if (!items || items.length === 0) {
             container.innerHTML = '<p class="empty-state">Nenhum item encontrado.</p>';
             return;
