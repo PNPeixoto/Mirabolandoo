@@ -903,46 +903,35 @@ function getCategoryFromItem(item) {
  * Filter items by category
  */
 function filterItems() {
-    console.log('🔄 filterItems v20260207170900 - NOVA VERSÃO CARREGADA!');
-
-    const selectElement = document.getElementById('category-filter');
+    const selectElement = document.getElementById('manage-items-filter');
 
     if (!selectElement) {
-        console.error('❌ Elemento category-filter não encontrado!');
+        console.error('❌ Elemento manage-items-filter não encontrado!');
         return;
     }
 
-    console.log('📋 DEBUG COMPLETO DO SELECT:');
-    console.log('  - Elemento:', selectElement);
-    console.log('  - tagName:', selectElement.tagName);
-    console.log('  - id:', selectElement.id);
-    console.log('  - selectedIndex:', selectElement.selectedIndex);
-    console.log('  - options.length:', selectElement.options.length);
-    console.log('  - options:', Array.from(selectElement.options).map(o => ({ value: o.value, text: o.text })));
-    console.log('  - selected option:', selectElement.options[selectElement.selectedIndex]);
-    console.log('  - value DIRETO:', selectElement.value);
-    console.log('  - value via getAttribute:', selectElement.getAttribute('value'));
+    // Log detalhado do estado do select
+    // Log simplificado
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const categoryFilter = selectedOption ? selectedOption.value : '';
 
-    const categoryFilter = selectElement.value;
-    console.log(`🔍 Filtro: "${categoryFilter || 'Nenhum'}" (${allItems.length} itens totais)`);
+    // console.log(`🔍 Filtro selecionado: "${categoryFilter}"`);
 
     let filtered = [...allItems];
 
     // Se não há filtro, mostrar todos
     if (!categoryFilter || categoryFilter === '') {
-        console.log('⚠️ Filtro vazio, mostrando todos os itens');
         renderItemsManagement(filtered);
         return;
     }
 
-    // Filter by category
-    console.log(`🔎 Aplicando filtro: "${categoryFilter}"`);
+    // Filtrar por menu_type (cardapio, pronta_entrega, encomenda)
     filtered = filtered.filter(item => {
-        const itemCategory = getCategoryFromItem(item);
-        return itemCategory === categoryFilter;
+        const itemMenuType = getCategoryFromItem(item);
+        return itemMenuType === categoryFilter;
     });
 
-    console.log(`✅ ${filtered.length} itens após filtro por "${categoryFilter}"`);
+    console.log(`✅ Filtro "${categoryFilter}": ${filtered.length} itens encontrados`);
     renderItemsManagement(filtered);
 }
 
@@ -1003,10 +992,10 @@ function renderItemsManagement(itemsToRender = null) {
                     ${item.description ? `<p class="item-description">${item.description}</p>` : ''}
                 </div>
                 <div class="item-card-actions">
-                    <button class="btn-icon btn-edit" onclick="showItemModal(${item.id})" title="Editar">
+                    <button class="btn-icon btn-edit" onclick="showItemModal('${item.id}')" title="Editar">
                         ✏️
                     </button>
-                    <button class="btn-icon btn-delete" onclick="deleteItem(${item.id})" title="Excluir">
+                    <button class="btn-icon btn-delete" onclick="deleteItem('${item.id}')" title="Excluir">
                         🗑️
                     </button>
                 </div>
@@ -1040,6 +1029,7 @@ function showItemModal(itemId = null) {
     form.reset();
     document.getElementById('item-id').value = '';
     document.getElementById('item-active').checked = true;
+    document.getElementById('subcategory-group').style.display = 'none';
 
     if (itemId) {
         // Edit mode
@@ -1050,10 +1040,38 @@ function showItemModal(itemId = null) {
             document.getElementById('item-name').value = item.name || '';
             document.getElementById('item-price').value = item.price || '';
             document.getElementById('item-category').value = item.menu_type || '';
+            document.getElementById('item-subcategory').value = item.category || '';
             document.getElementById('item-image').value = item.image || '';
-            document.getElementById('item-description').value = item.description || '';
+            document.getElementById('item-short-desc').value = item.short_desc || '';
+            document.getElementById('item-full-desc').value = item.full_desc || '';
             document.getElementById('item-stock').value = item.quantity || 0;
             document.getElementById('item-active').checked = item.active !== false;
+
+            // Load translations if available
+            if (item.translations) {
+                // English
+                const en = item.translations["en"] || item.translations["en-US"];
+                if (en) {
+                    document.getElementById('item-short-desc-en').value = en.shortDesc || '';
+                    document.getElementById('item-full-desc-en').value = en.fullDesc || '';
+                }
+
+                // Spanish
+                const es = item.translations["es"] || item.translations["es-ES"];
+                if (es) {
+                    document.getElementById('item-short-desc-es').value = es.shortDesc || '';
+                    document.getElementById('item-full-desc-es').value = es.fullDesc || '';
+                }
+            } else {
+                // Clear translation fields if no translations exist
+                document.getElementById('item-short-desc-en').value = '';
+                document.getElementById('item-full-desc-en').value = '';
+                document.getElementById('item-short-desc-es').value = '';
+                document.getElementById('item-full-desc-es').value = '';
+            }
+
+            // Show subcategory if needed
+            toggleSubcategory();
         }
     } else {
         // Create mode
@@ -1079,32 +1097,61 @@ async function saveItem(event) {
 
     const itemId = document.getElementById('item-id').value;
     const name = document.getElementById('item-name').value.trim();
-    const price = parseFloat(document.getElementById('item-price').value);
-    const category = document.getElementById('item-category').value;
+    const price = document.getElementById('item-price').value.trim();
+    const menuType = document.getElementById('item-category').value;
+    const subcategory = document.getElementById('item-subcategory')?.value || '';
     const image = document.getElementById('item-image').value.trim();
-    const description = document.getElementById('item-description').value.trim();
+    const shortDesc = document.getElementById('item-short-desc')?.value?.trim() || '';
+    const fullDesc = document.getElementById('item-full-desc')?.value?.trim() || '';
     const stock = parseInt(document.getElementById('item-stock').value) || 0;
     const active = document.getElementById('item-active').checked;
 
     // Validation
-    if (!name || !price || !category) {
+    if (!name || !price || !menuType) {
         showToast('Preencha todos os campos obrigatórios', 'error');
         return;
     }
 
-    if (price <= 0) {
-        showToast('Preço deve ser maior que zero', 'error');
+    if ((menuType === 'cardapio' || menuType === 'encomenda') && !subcategory) {
+        showToast('Selecione uma subcategoria', 'error');
         return;
     }
+
+    // Capturar traduções
+    const shortDescEN = document.getElementById('item-short-desc-en')?.value?.trim() || shortDesc;
+    const fullDescEN = document.getElementById('item-full-desc-en')?.value?.trim() || fullDesc || shortDescEN;
+    const shortDescES = document.getElementById('item-short-desc-es')?.value?.trim() || shortDesc;
+    const fullDescES = document.getElementById('item-full-desc-es')?.value?.trim() || fullDesc || shortDescES;
+
+    const translations = {
+        "pt-BR": {
+            name: name,
+            shortDesc: shortDesc,
+            fullDesc: fullDesc || shortDesc
+        },
+        "en": {
+            name: name,
+            shortDesc: shortDescEN,
+            fullDesc: fullDescEN
+        },
+        "es": {
+            name: name,
+            shortDesc: shortDescES,
+            fullDesc: fullDescES
+        }
+    };
 
     const itemData = {
         name,
         price,
-        menu_type: category,
+        category: subcategory || menuType,
+        menu_type: menuType,
         image: image || null,
-        description: description || null,
-        quantity: category === 'pronta_entrega' ? stock : null,
+        short_desc: shortDesc || null,
+        full_desc: fullDesc || null,
+        quantity: (menuType === 'pronta_entrega' || menuType === 'cardapio') ? stock : null,
         active,
+        translations: translations, // Salvar objeto translations
         updated_at: new Date().toISOString()
     };
 
@@ -1119,6 +1166,8 @@ async function saveItem(event) {
     } else {
         // Create new item
         console.log('➕ Criando novo item');
+        // Gerar ID único (timestamp + random)
+        itemData.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
         itemData.created_at = new Date().toISOString();
         result = await supabaseRequest('menu_items', {
             method: 'POST',
@@ -1174,5 +1223,236 @@ async function deleteItem(itemId) {
         ]);
     } else {
         showToast('Erro ao deletar item: ' + result.error, 'error');
+    }
+}
+
+// ============================================
+// SUBCATEGORY TOGGLE & JS CODE GENERATOR
+// ============================================
+
+/**
+ * Toggle subcategory visibility based on menu type
+ */
+function toggleSubcategory() {
+    const menuType = document.getElementById('item-category').value;
+    const subcategoryGroup = document.getElementById('subcategory-group');
+
+    // Show subcategory for cardapio and encomenda
+    if (menuType === 'cardapio' || menuType === 'encomenda') {
+        subcategoryGroup.style.display = 'block';
+        document.getElementById('item-subcategory').required = true;
+    } else {
+        subcategoryGroup.style.display = 'none';
+        document.getElementById('item-subcategory').required = false;
+    }
+}
+
+/**
+ * Translate text using MyMemory API (free, no API key required)
+ * @param {string} text - Text to translate
+ * @param {string} sourceLang - Source language code (e.g., 'pt')
+ * @param {string} targetLang - Target language code (e.g., 'en', 'es')
+ * @returns {Promise<string>} - Translated text
+ */
+async function translateText(text, sourceLang, targetLang) {
+    if (!text || text.trim() === '') return '';
+
+    try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.responseStatus === 200 && data.responseData?.translatedText) {
+            return data.responseData.translatedText;
+        }
+        return text; // Fallback to original text
+    } catch (error) {
+        console.error('Translation error:', error);
+        return text; // Fallback to original text
+    }
+}
+
+/**
+ * Auto-translate descriptions from Portuguese to English and Spanish
+ */
+async function autoTranslateDescriptions() {
+    const shortDescPT = document.getElementById('item-short-desc').value.trim();
+    const fullDescPT = document.getElementById('item-full-desc').value.trim();
+
+    if (!shortDescPT) {
+        showToast('Preencha a descrição curta em Português primeiro', 'error');
+        return;
+    }
+
+    // Show loading state
+    const translateBtn = document.querySelector('button[onclick="autoTranslateDescriptions()"]');
+    const originalText = translateBtn?.innerHTML;
+    if (translateBtn) {
+        translateBtn.innerHTML = '⏳ Traduzindo...';
+        translateBtn.disabled = true;
+    }
+
+    try {
+        showToast('Traduzindo para Inglês e Espanhol...', 'info');
+
+        // Translate to English
+        const [shortDescEN, fullDescEN] = await Promise.all([
+            translateText(shortDescPT, 'pt', 'en'),
+            fullDescPT ? translateText(fullDescPT, 'pt', 'en') : ''
+        ]);
+
+        // Translate to Spanish
+        const [shortDescES, fullDescES] = await Promise.all([
+            translateText(shortDescPT, 'pt', 'es'),
+            fullDescPT ? translateText(fullDescPT, 'pt', 'es') : ''
+        ]);
+
+        // Fill the fields
+        document.getElementById('item-short-desc-en').value = shortDescEN;
+        document.getElementById('item-full-desc-en').value = fullDescEN;
+        document.getElementById('item-short-desc-es').value = shortDescES;
+        document.getElementById('item-full-desc-es').value = fullDescES;
+
+        showToast('Traduções concluídas! ✅', 'success');
+    } catch (error) {
+        console.error('Auto-translate error:', error);
+        showToast('Erro na tradução automática', 'error');
+    } finally {
+        // Restore button
+        if (translateBtn) {
+            translateBtn.innerHTML = originalText || '🌐 Traduzir Automaticamente';
+            translateBtn.disabled = false;
+        }
+    }
+}
+
+/**
+ * Generate JS code for the item in the format expected by data files
+ */
+function generateJSCode() {
+    const name = document.getElementById('item-name').value.trim();
+    const price = document.getElementById('item-price').value.trim();
+    const menuType = document.getElementById('item-category').value;
+    const subcategory = document.getElementById('item-subcategory').value || 'Outros';
+    const image = document.getElementById('item-image').value.trim() || 'assets/placeholder.png';
+
+    // Portuguese (required)
+    const shortDesc = document.getElementById('item-short-desc').value.trim();
+    const fullDesc = document.getElementById('item-full-desc').value.trim();
+
+    // English (optional - falls back to Portuguese)
+    const shortDescEN = document.getElementById('item-short-desc-en')?.value?.trim() || shortDesc;
+    const fullDescEN = document.getElementById('item-full-desc-en')?.value?.trim() || fullDesc || shortDescEN;
+
+    // Spanish (optional - falls back to Portuguese)
+    const shortDescES = document.getElementById('item-short-desc-es')?.value?.trim() || shortDesc;
+    const fullDescES = document.getElementById('item-full-desc-es')?.value?.trim() || fullDesc || shortDescES;
+
+    const stock = parseInt(document.getElementById('item-stock').value) || 0;
+
+    if (!name || !price || !menuType) {
+        showToast('Preencha Nome, Preço e Tipo de Menu', 'error');
+        return;
+    }
+
+    if ((menuType === 'cardapio' || menuType === 'encomenda') && !subcategory) {
+        showToast('Selecione uma subcategoria', 'error');
+        return;
+    }
+
+    // Generate ID from name
+    const id = name.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/(^_|_$)/g, '');
+
+    let code = '';
+    let targetFile = '';
+
+    if (menuType === 'cardapio') {
+        targetFile = 'data-cardapio.js';
+        code = `    {
+        id: '${id}',
+        name: "${name}",
+        category: '${subcategory}',
+        translations: {
+            "pt-BR": {
+                name: "${name}",
+                shortDesc: "${shortDesc}",
+                fullDesc: "${fullDesc || shortDesc}"
+            },
+            "en-US": {
+                name: "${name}",
+                shortDesc: "${shortDescEN}",
+                fullDesc: "${fullDescEN}"
+            },
+            "es-ES": {
+                name: "${name}",
+                shortDesc: "${shortDescES}",
+                fullDesc: "${fullDescES}"
+            }
+        },
+        price: "${price}",
+        image: "${image}",
+        quantity: ${stock}
+    },`;
+    } else if (menuType === 'encomenda') {
+        targetFile = 'data-encomenda.js';
+        code = `    {
+        id: '${id}',
+        name: "${name}",
+        category: '${subcategory}',
+        tags: [],
+        shortDesc: "${shortDesc}",
+        fullDesc: "${fullDesc || shortDesc}",
+        price: "${price}",
+        image: "${image}",
+        options: [
+            { size: "PP - 15cm (Até 10 fatias)", price: "${price}" },
+            { size: "P - 20cm (Até 20 fatias)", price: "R$ XXX,00" }
+        ]
+    },`;
+    } else if (menuType === 'pronta_entrega') {
+        targetFile = 'data-pronta-entrega.js (ou Supabase)';
+        code = `    {
+        id: '${id}',
+        name: "${name}",
+        category: '${subcategory || 'Pronta Entrega'}',
+        shortDesc: "${shortDesc}",
+        fullDesc: "${fullDesc || shortDesc}",
+        price: "${price}",
+        image: "${image}",
+        quantity: ${stock},
+        active: true
+    },`;
+    }
+
+    // Show the code modal
+    document.getElementById('code-target-file').textContent = targetFile;
+    document.getElementById('generated-code').value = code;
+    document.getElementById('code-modal').classList.add('active');
+}
+
+/**
+ * Close code modal
+ */
+function closeCodeModal() {
+    document.getElementById('code-modal').classList.remove('active');
+}
+
+/**
+ * Copy generated code to clipboard
+ */
+function copyGeneratedCode() {
+    const codeTextarea = document.getElementById('generated-code');
+    codeTextarea.select();
+    codeTextarea.setSelectionRange(0, 99999); // For mobile
+
+    try {
+        navigator.clipboard.writeText(codeTextarea.value);
+        showToast('✅ Código copiado para a área de transferência!', 'success');
+    } catch (err) {
+        document.execCommand('copy');
+        showToast('✅ Código copiado!', 'success');
     }
 }

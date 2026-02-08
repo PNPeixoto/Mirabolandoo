@@ -34,7 +34,12 @@
         }
 
         /* Previne piscadas */
-        header, .menu-container, .card, .hero-bg, nav, .intro-pronta {
+        header,
+        .menu-container,
+        .card,
+        .hero-bg,
+        nav,
+        .intro-pronta {
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             transform: translate3d(0, 0, 0);
@@ -100,23 +105,47 @@
             margin-bottom: 0.5rem;
         }
 
-        .intro-pronta h2::after { display: none; }
-        .intro-pronta p { color: rgba(255, 255, 255, 0.9); }
+        .intro-pronta h2::after {
+            display: none;
+        }
+
+        .intro-pronta p {
+            color: rgba(255, 255, 255, 0.9);
+        }
 
         /* Sold Out Styles */
-        .card.sold-out .card-img { filter: grayscale(100%); opacity: 0.8; }
-        .sold-out-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 5; pointer-events: none;
+        .card.sold-out .card-img {
+            filter: grayscale(100%);
+            opacity: 0.8;
         }
+
+        .sold-out-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
         .sold-out-badge-text {
-            background: #ef4444; color: white; padding: 0.8rem 2rem;
-            font-family: var(--font-display); font-weight: 700; font-size: 1.2rem;
-            text-transform: uppercase; border-radius: 8px;
-            transform: rotate(-10deg); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            border: 2px solid white; letter-spacing: 2px;
+            background: #ef4444;
+            color: white;
+            padding: 0.8rem 2rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border-radius: 8px;
+            transform: rotate(-10deg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+            letter-spacing: 2px;
         }
 
         /* Premium Animation Vars */
@@ -127,27 +156,59 @@
 
         /* CUSTOM CURSOR */
         .custom-cursor {
-            width: 20px; height: 20px; background: transparent;
-            border: 2px solid var(--vinho-profundo); border-radius: 50%;
-            position: fixed; pointer-events: none; z-index: 9999;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border: 2px solid var(--vinho-profundo);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
             transition: transform 0.15s var(--ease-out-expo), width 0.3s var(--spring-bounce), height 0.3s var(--spring-bounce);
-            transform: translate(-50%, -50%); mix-blend-mode: difference;
-        }
-        .custom-cursor.hover { width: 60px; height: 60px; background: rgba(196, 154, 108, 0.1); border-color: var(--bronze-dourado); }
-        .custom-cursor.click { transform: translate(-50%, -50%) scale(0.8); }
-        
-        .cursor-dot {
-            width: 6px; height: 6px; background: var(--vinho-profundo);
-            border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000;
-            transform: translate(-50%, -50%); transition: transform 0.1s ease, opacity 0.3s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
         }
 
-        @media (hover: none) { .custom-cursor, .cursor-dot { display: none !important; } }
+        .custom-cursor.hover {
+            width: 60px;
+            height: 60px;
+            background: rgba(196, 154, 108, 0.1);
+            border-color: var(--bronze-dourado);
+        }
+
+        .custom-cursor.click {
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--vinho-profundo);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease, opacity 0.3s ease;
+        }
+
+        @media (hover: none) {
+
+            .custom-cursor,
+            .cursor-dot {
+                display: none !important;
+            }
+        }
 
         .scroll-progress {
-            position: fixed; top: 0; left: 0; width: 0%; height: 3px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
             background: linear-gradient(90deg, var(--vinho-profundo), var(--bronze-dourado), var(--rosa-damasco));
-            z-index: 9998; transition: width 0.1s linear;
+            z-index: 9998;
+            transition: width 0.1s linear;
         }
     </style>
 </head>
@@ -215,7 +276,8 @@
         </div>
 
         <div class="warning-banner">
-            <strong>Atenção:</strong> Os produtos de pronta entrega são limitados. Para garantir, recomendamos <a href="encomenda.html">encomendar</a>.
+            <strong>Atenção:</strong> Os produtos de pronta entrega são limitados. Para garantir, recomendamos <a
+                href="encomenda.html">encomendar</a>.
         </div>
 
         <div class="search-container" style="justify-content: center; margin-bottom: 2rem;">
@@ -226,7 +288,7 @@
         </div>
 
         <section class="menu-container" id="menu-container">
-            </section>
+        </section>
     </main>
 
     <footer>
@@ -240,10 +302,11 @@
     <script src="shared-ui.js"></script>
     <script src="language-switcher.js"></script>
     <script src="data.js"></script>
-    
+
     <script>
-        // CONFIGURAÇÃO SEGURA - APONTA PARA SUA API
-        const API_ENDPOINT = '/api/produtos-pronta-entrega'; 
+        // CONFIGURAÇÃO SUPABASE
+        const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
 
         document.addEventListener('DOMContentLoaded', async () => {
             await loadProntaEntrega();
@@ -262,14 +325,22 @@
             container.innerHTML = '<p style="text-align:center; width:100%;">Carregando bolos disponíveis...</p>';
 
             try {
-                // Fetch seguro para sua API (não expõe chaves)
-                const response = await fetch(API_ENDPOINT);
+                // Fetch direto do Supabase
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/menu_items?menu_type=eq.pronta_entrega&active=eq.true&quantity=gt.0&order=name`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
 
                 if (!response.ok) throw new Error('Erro ao carregar estoque');
 
                 let items = await response.json();
 
-                // Cruzamento de dados com imagens locais
+                // Cruzamento de dados com imagens locais e traduções
                 if (window.menuCardapioLoja) {
                     items = items.map(apiItem => {
                         const localItem = window.menuCardapioLoja.find(l => l.id === apiItem.id || l.name === apiItem.name);
@@ -278,7 +349,7 @@
                                 ...apiItem,
                                 image: localItem.image,
                                 imagePosition: localItem.imagePosition || 'center center',
-                                translations: localItem.translations
+                                translations: apiItem.translations || localItem.translations // Prefer database translations
                             };
                         }
                         return apiItem;
@@ -290,7 +361,27 @@
                 setupSearch();
             } catch (error) {
                 console.error('Error loading pronta entrega:', error);
-                container.innerHTML = '<p style="text-align:center; width:100%;">Não foi possível carregar o estoque. Tente novamente mais tarde.</p>';
+
+                // Fallback apenas se houver erro
+                if (window.menuCardapioLoja) {
+                    // Filtrar localmente itens de pronta entrega se API falhar
+                    const localProntaEntrega = window.menuCardapioLoja.filter(i => i.category === 'Pronta Entrega' || i.menu_type === 'pronta_entrega');
+                    if (localProntaEntrega.length > 0) {
+                        renderMenu(localProntaEntrega);
+
+                        // Aviso de modo offline
+                        const warning = document.createElement('div');
+                        warning.style.cssText = 'background: #fff3cd; color: #856404; padding: 10px; margin-bottom: 2rem; text-align: center; width: 100%; border-radius: 8px; border: 1px solid #ffeeba; font-size: 0.9rem;';
+                        warning.innerHTML = '⚠️ <strong>Modo Offline:</strong> Exibindo versão local do estoque. Disponibilidade pode estar desatualizada.';
+
+                        const container = document.getElementById('menu-container');
+                        container.insertBefore(warning, container.firstChild);
+                    } else {
+                        container.innerHTML = '<p style="text-align:center; width:100%;">Não foi possível carregar o estoque. Tente novamente mais tarde.</p>';
+                    }
+                } else {
+                    container.innerHTML = '<p style="text-align:center; width:100%;">Não foi possível carregar o estoque. Tente novamente mais tarde.</p>';
+                }
             }
         }
 
@@ -327,4 +418,5 @@
     </script>
     <script src="premium.js"></script>
 </body>
+
 </html>

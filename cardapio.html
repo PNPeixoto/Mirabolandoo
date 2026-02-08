@@ -97,7 +97,7 @@
         </div>
 
         <!-- Filters (New) -->
-        <div class="filters-container" id="filtersContainer" style="justify-content: center;">
+        <div class="filters-container" id="filtersContainer" style="justify-content: center; flex-wrap: wrap;">
             <button class="filter-btn active" data-category="all">
                 <span class="filter-icon">✨</span> <span data-i18n="cardapio.filter.all">Todos</span>
             </button>
@@ -112,6 +112,24 @@
             </button>
             <button class="filter-btn" data-category="Brownie">
                 <span class="filter-icon">🍫</span> <span data-i18n="cardapio.filter.brownies">Brownies</span>
+            </button>
+            <button class="filter-btn" data-category="Cookie">
+                <span class="filter-icon">🍪</span> <span>Cookies</span>
+            </button>
+            <button class="filter-btn" data-category="Caseirinho">
+                <span class="filter-icon">🏠</span> <span>Caseirinhos</span>
+            </button>
+            <button class="filter-btn" data-category="Brigadeiro">
+                <span class="filter-icon">🍬</span> <span>Brigadeiros</span>
+            </button>
+            <button class="filter-btn" data-category="Bolinho">
+                <span class="filter-icon">🧁</span> <span>Bolinhos</span>
+            </button>
+            <button class="filter-btn" data-category="Pudim">
+                <span class="filter-icon">🍮</span> <span>Pudim</span>
+            </button>
+            <button class="filter-btn" data-category="Pavê">
+                <span class="filter-icon">🥄</span> <span>Pavês</span>
             </button>
         </div>
 
@@ -134,32 +152,15 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Priority: Local Data
-            if (window.menuCardapioLoja) {
-                console.log('Rendering from local data-cardapio.js');
-                window.menuItems = window.menuCardapioLoja; // Sync for filtering
-                renderMenu(window.menuCardapioLoja);
-                setupSearch();
-                hideFullscreenLoader();
-
-                // Final check to ensure translations apply once LanguageManager is ready
-                setTimeout(() => {
-                    if (window.languageManager) renderMenu(window.menuItems);
-                }, 100);
-                return;
-            }
-
-            // Fallback: Supabase
+            // Tentar carregar do Supabase primeiro (Priodidade: Banco de Dados Atualizado)
             await loadMenuFromSupabase();
             hideFullscreenLoader();
 
             // Listen for language changes to re-render menu
             window.addEventListener('languageChanged', () => {
-                if (window.menuItems) {
-                    const searchInput = document.getElementById('searchInput');
-                    const activeCat = getActiveCategory();
-                    filterItems(searchInput ? searchInput.value : '', activeCat);
-                }
+                const searchInput = document.getElementById('searchInput');
+                // Re-apply current filters to re-render with new language
+                filterItems(searchInput ? searchInput.value : '', getActiveCategory());
             });
         });
 
@@ -195,7 +196,34 @@
 
                 if (!response.ok) throw new Error('Erro ao carregar');
 
-                const items = await response.json();
+                let items = await response.json();
+
+                // Cruzamento de dados com imagens locais e traduções
+                if (window.menuCardapioLoja) {
+                    items = items.map(apiItem => {
+                        // Fuzzy match: Normalize names (lowercase, remove spaces) to compare
+                        const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+                        const apiNameNorm = normalize(apiItem.name);
+
+                        const localItem = window.menuCardapioLoja.find(l => {
+                            if (l.id === apiItem.id) return true;
+                            const localNameNorm = normalize(l.name);
+                            return localNameNorm === apiNameNorm;
+                        });
+
+                        if (localItem) {
+                            // Merge com prioridade para imagem local (caminhos atualizados)
+                            return {
+                                ...apiItem,
+                                image: localItem.image, // Prefer local image (updated paths like .jpeg)
+                                imagePosition: localItem.imagePosition || apiItem.imagePosition || 'center center',
+                                translations: apiItem.translations || localItem.translations // Prefer DB translations if exist, else local
+                            };
+                        }
+                        return apiItem;
+                    });
+                }
+
                 window.menuItems = items; // Store globally for filtering
                 renderMenu(items);
                 setupSearch();
@@ -204,6 +232,14 @@
                 // Fallback to local data
                 if (window.menuCardapioLoja) {
                     renderMenu(window.menuCardapioLoja);
+
+                    // Aviso de modo offline
+                    const warning = document.createElement('div');
+                    warning.style.cssText = 'background: #fff3cd; color: #856404; padding: 10px; margin-bottom: 2rem; text-align: center; width: 100%; border-radius: 8px; border: 1px solid #ffeeba; font-size: 0.9rem;';
+                    warning.innerHTML = '⚠️ <strong>Modo Offline:</strong> Exibindo versão local do cardápio. Algumas informações podem estar desatualizadas.';
+
+                    const container = document.getElementById('menu-container');
+                    container.insertBefore(warning, container.firstChild);
                 } else {
                     container.innerHTML = '<p style="text-align:center; width:100%;">Erro ao carregar cardápio.</p>';
                 }
@@ -290,10 +326,26 @@
                 if (localItem) translationSource = localItem;
             }
 
-            if (translationSource.translations && translationSource.translations[currentLang]) {
-                name = translationSource.translations[currentLang].name;
-                shortDesc = translationSource.translations[currentLang].shortDesc;
-                fullDesc = translationSource.translations[currentLang].fullDesc;
+            if (translationSource.translations) {
+                // Try exact match first (e.g., 'pt-BR', 'en', 'es')
+                let trans = translationSource.translations[currentLang];
+
+                // If not found, try fallbacks (en -> en-US, es -> es-ES)
+                if (!trans) {
+                    if (currentLang === 'en') trans = translationSource.translations['en-US'];
+                    else if (currentLang === 'es') trans = translationSource.translations['es-ES'];
+                }
+
+                if (trans) {
+                    name = trans.name || item.name;
+                    shortDesc = trans.shortDesc || item.short_desc || item.shortDesc || '';
+                    fullDesc = trans.fullDesc || item.full_desc || item.fullDesc || '';
+                } else {
+                    // Fallback to item defaults (usually PT)
+                    name = item.name;
+                    shortDesc = item.short_desc || item.shortDesc || '';
+                    fullDesc = item.full_desc || item.fullDesc || '';
+                }
             } else {
                 // Fallback to defaults (PT-BR)
                 name = item.name;
@@ -398,6 +450,14 @@
 
             renderMenu(filtered);
         }
+
+        // Listen for language changes and re-render without reload
+        window.addEventListener('languageChanged', (e) => {
+            // console.log('Language changed to:', e.detail.language); // Debug
+            const searchInput = document.getElementById('searchInput');
+            // Re-apply current filters to re-render with new language
+            filterItems(searchInput ? searchInput.value : '', getActiveCategory());
+        });
     </script>
     <script src="premium.js"></script>
     <script src="translations.js"></script>

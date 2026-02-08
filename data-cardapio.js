@@ -143,7 +143,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/lilybraun.jpg"
+        image: "assets/lilybraun.jpeg"
     },
     {
         id: 'chapeleiro',
@@ -167,7 +167,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/chapeleiro.jpg"
+        image: "assets/chapeleiro.jpeg"
     },
     {
         id: 'brigous',
@@ -191,7 +191,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/brigous.jpg"
+        image: "assets/brigous.jpeg"
     },
     {
         id: 'bolo_nonna',
@@ -215,7 +215,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/nonna.jpg"
+        image: "assets/nonna.jpeg"
     },
     {
         id: 'tom_jobim',
@@ -263,7 +263,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/princesinha.jpg"
+        image: "assets/princesinha.jpeg"
     },
     {
         id: 'mirabolando',
@@ -287,7 +287,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/mirabolando.jpg"
+        image: "assets/mirabolando.jpeg"
     },
     {
         id: 'red_velvet',
@@ -337,7 +337,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/Torta de Limão.png"
+        image: "assets/TortadeLimão.png"
     },
     {
         id: 'banoffee',
@@ -437,7 +437,55 @@ const menuCardapioLoja = [
         price: "R$ 22,00",
         image: "assets/Nutella.png"
     },
-
+    {
+        id: 'black_jack',
+        name: "Black Jack",
+        category: 'Cheesecakes',
+        translations: {
+            "pt-BR": {
+                name: "Black Jack",
+                shortDesc: "Cheesecake de chocolate belga e Jack Daniel's",
+                fullDesc: "Cheesecake de chocolate belga amargo com um toque de Jack Daniel's.  Aprox.: 155g"
+            },
+            "en-US": {
+                name: "Black Jack",
+                shortDesc: "Belgian chocolate cheesecake and Jack Daniel's",
+                fullDesc: "Dark Belgian chocolate cheesecake with a hint of Jack Daniel's.  Approx.: 155g"
+            },
+            "es-ES": {
+                name: "Black Jack",
+                shortDesc: "Cheesecake de chocolate belga y Jack Daniel's",
+                fullDesc: "Cheesecake de chocolate belga oscuro con un toque de Jack Daniel's.  Aprox.: 155 g"
+            }
+        },
+        price: "R$ 36",
+        image: "assets/blackjack.png",
+        quantity: 0
+    },
+    {
+        id: 'cheesecake_frutas_vermelhas',
+        name: "Cheesecake de Frutas Vermelhas",
+        category: 'Cheesecakes',
+        translations: {
+            "pt-BR": {
+                name: "Cheesecake de Frutas Vermelhas",
+                shortDesc: "Clássico com calda de frutas vermelhas.",
+                fullDesc: "Cheesecake clássico com deliciosa calda de frutas vermelhas."
+            },
+            "en": {
+                name: "Red Berries Cheesecake",
+                shortDesc: "Classic with red berry sauce.",
+                fullDesc: "Classic cheesecake with delicious red berry sauce."
+            },
+            "es": {
+                name: "Cheesecake de Frutos Rojos",
+                shortDesc: "Clásico con salsa de frutos rojos.",
+                fullDesc: "Cheesecake clásico con deliciosa salsa de frutos rojos."
+            }
+        },
+        price: "R$ 24,00",
+        image: "assets/Frutas Vermelhas.png"
+    },
     // --- BROWNIES (FATIAS) ---
     {
         id: 'brownie_cake_mesclado',
@@ -486,6 +534,422 @@ const menuCardapioLoja = [
         },
         price: "R$ 22,00",
         image: "assets/brownie_chocolate_amargo.jpg"
+    },
+
+    // --- COOKIES ---
+    {
+        id: 'cookie_bossa_nova',
+        name: "Cookie Bossa Nova",
+        category: 'Cookies',
+        translations: {
+            "pt-BR": {
+                name: "Cookie Bossa Nova",
+                shortDesc: "Combinação especial de sabores brasileiros.",
+                fullDesc: "Cookie artesanal com uma combinação especial de sabores que remete à música brasileira."
+            },
+            "en": {
+                name: "Bossa Nova Cookie",
+                shortDesc: "Special combination of Brazilian flavors.",
+                fullDesc: "Artisanal cookie with a special combination of flavors reminiscent of Brazilian music."
+            },
+            "es": {
+                name: "Cookie Bossa Nova",
+                shortDesc: "Combinación especial de sabores brasileños.",
+                fullDesc: "Cookie artesanal con una combinación especial de sabores que recuerda a la música brasileña."
+            }
+        },
+        price: "R$ 16,00",
+        image: "assets/cookie_bossa_nova.jpg"
+    },
+    {
+        id: 'cookie_absurdo',
+        name: "Cookie Absurdo (Pistache)",
+        category: 'Cookies',
+        translations: {
+            "pt-BR": {
+                name: "Cookie Absurdo (Pistache)",
+                shortDesc: "Sabor intenso de pistache.",
+                fullDesc: "Cookie artesanal com sabor intenso e marcante de pistache."
+            },
+            "en": {
+                name: "Absurd Cookie (Pistachio)",
+                shortDesc: "Intense pistachio flavor.",
+                fullDesc: "Artisanal cookie with intense and distinctive pistachio flavor."
+            },
+            "es": {
+                name: "Cookie Absurdo (Pistacho)",
+                shortDesc: "Sabor intenso de pistacho.",
+                fullDesc: "Cookie artesanal con sabor intenso y marcado de pistacho."
+            }
+        },
+        price: "R$ 22,00",
+        image: "assets/cookie_absurdo.jpg"
+    },
+    {
+        id: 'cookie_nutella',
+        name: "Cookie de Nutella",
+        category: 'Cookies',
+        translations: {
+            "pt-BR": {
+                name: "Cookie de Nutella",
+                shortDesc: "Recheado com Nutella.",
+                fullDesc: "Cookie artesanal recheado com deliciosa Nutella cremosa."
+            },
+            "en": {
+                name: "Nutella Cookie",
+                shortDesc: "Filled with Nutella.",
+                fullDesc: "Artisanal cookie filled with delicious creamy Nutella."
+            },
+            "es": {
+                name: "Cookie de Nutella",
+                shortDesc: "Relleno con Nutella.",
+                fullDesc: "Cookie artesanal relleno con deliciosa Nutella cremosa."
+            }
+        },
+        price: "R$ 26,00",
+        image: "assets/cookienutella.jpeg"
+    },
+    {
+        id: 'cookie_tradicional',
+        name: "Cookie Tradicional",
+        category: 'Cookies',
+        translations: {
+            "pt-BR": {
+                name: "Cookie Tradicional",
+                shortDesc: "Cookie clássico com gotas de chocolate.",
+                fullDesc: "O clássico cookie americano com gotas de chocolate."
+            },
+            "en": {
+                name: "Traditional Cookie",
+                shortDesc: "Classic chocolate chip cookie.",
+                fullDesc: "The classic American chocolate chip cookie."
+            },
+            "es": {
+                name: "Cookie Tradicional",
+                shortDesc: "Cookie clásico con chips de chocolate.",
+                fullDesc: "El clásico cookie americano con chips de chocolate."
+            }
+        },
+        price: "R$ 16,00",
+        image: "assets/cookie_tradicional.jpg"
+    },
+
+    // --- CASEIRINHOS ---
+    {
+        id: 'caseirinho_chocolate',
+        name: "Caseirinho de Chocolate",
+        category: 'Caseirinhos',
+        translations: {
+            "pt-BR": {
+                name: "Caseirinho de Chocolate",
+                shortDesc: "Bolo caseiro de chocolate.",
+                fullDesc: "Delicioso bolo caseiro de chocolate, feito com muito carinho."
+            },
+            "en": {
+                name: "Chocolate Homemade Cake",
+                shortDesc: "Homemade chocolate cake.",
+                fullDesc: "Delicious homemade chocolate cake, made with lots of love."
+            },
+            "es": {
+                name: "Casero de Chocolate",
+                shortDesc: "Pastel casero de chocolate.",
+                fullDesc: "Delicioso pastel casero de chocolate, hecho con mucho cariño."
+            }
+        },
+        price: "R$ 15,50",
+        image: "assets/caseirinho_chocolate.jpg"
+    },
+    {
+        id: 'caseirinho_fuba_goiaba',
+        name: "Caseirinho de Fubá com Goiaba",
+        category: 'Caseirinhos',
+        translations: {
+            "pt-BR": {
+                name: "Caseirinho de Fubá com Goiaba",
+                shortDesc: "Fubá com goiabada.",
+                fullDesc: "Bolo caseiro de fubá com deliciosa goiabada. A combinação perfeita!"
+            },
+            "en": {
+                name: "Cornmeal Cake with Guava",
+                shortDesc: "Cornmeal with guava paste.",
+                fullDesc: "Homemade cornmeal cake with delicious guava paste. The perfect combination!"
+            },
+            "es": {
+                name: "Casero de Maíz con Guayaba",
+                shortDesc: "Maíz con dulce de guayaba.",
+                fullDesc: "Pastel casero de maíz con delicioso dulce de guayaba. ¡La combinación perfecta!"
+            }
+        },
+        price: "R$ 15,50",
+        image: "assets/caseirinho_fuba.jpg"
+    },
+    {
+        id: 'caseirinho_formigueiro',
+        name: "Caseirinho Formigueiro",
+        category: 'Caseirinhos',
+        translations: {
+            "pt-BR": {
+                name: "Caseirinho Formigueiro",
+                shortDesc: "Clássico formigueiro.",
+                fullDesc: "O clássico bolo formigueiro com chocolate granulado."
+            },
+            "en": {
+                name: "Anthill Cake",
+                shortDesc: "Classic anthill cake.",
+                fullDesc: "The classic anthill cake with chocolate sprinkles."
+            },
+            "es": {
+                name: "Pastel Hormiguero",
+                shortDesc: "Clásico pastel hormiguero.",
+                fullDesc: "El clásico pastel hormiguero con chispas de chocolate."
+            }
+        },
+        price: "R$ 18,00",
+        image: "assets/caseirinho_formigueiro.jpg"
+    },
+
+    // --- BRIGADEIROS ---
+    {
+        id: 'brigadeiro_tradicional',
+        name: "Brigadeiro Tradicional",
+        category: 'Brigadeiros',
+        translations: {
+            "pt-BR": {
+                name: "Brigadeiro Tradicional",
+                shortDesc: "O clássico brasileiro.",
+                fullDesc: "O tradicional brigadeiro de chocolate, feito com muito amor."
+            },
+            "en": {
+                name: "Traditional Brigadeiro",
+                shortDesc: "The Brazilian classic.",
+                fullDesc: "The traditional chocolate brigadeiro, made with lots of love."
+            },
+            "es": {
+                name: "Brigadeiro Tradicional",
+                shortDesc: "El clásico brasileño.",
+                fullDesc: "El tradicional brigadeiro de chocolate, hecho con mucho amor."
+            }
+        },
+        price: "R$ 7,00",
+        image: "assets/brigadeiro.jpeg"
+    },
+    {
+        id: 'brigadeiro_3_leites',
+        name: "Brigadeiro 3 Leites",
+        category: 'Brigadeiros',
+        translations: {
+            "pt-BR": {
+                name: "Brigadeiro 3 Leites",
+                shortDesc: "Versão cremosa.",
+                fullDesc: "Brigadeiro na versão três leites, super cremoso e delicioso."
+            },
+            "en": {
+                name: "Tres Leches Brigadeiro",
+                shortDesc: "Creamy version.",
+                fullDesc: "Brigadeiro in the tres leches version, super creamy and delicious."
+            },
+            "es": {
+                name: "Brigadeiro Tres Leches",
+                shortDesc: "Versión cremosa.",
+                fullDesc: "Brigadeiro en versión tres leches, súper cremoso y delicioso."
+            }
+        },
+        price: "R$ 6,00",
+        image: "assets/brigadeiro_3_leites.jpg"
+    },
+    {
+        id: 'brigadeiro_pistache',
+        name: "Brigadeiro de Pistache",
+        category: 'Brigadeiros',
+        translations: {
+            "pt-BR": {
+                name: "Brigadeiro de Pistache",
+                shortDesc: "Sabor sofisticado.",
+                fullDesc: "Brigadeiro de pistache com sabor sofisticado e marcante."
+            },
+            "en": {
+                name: "Pistachio Brigadeiro",
+                shortDesc: "Sophisticated flavor.",
+                fullDesc: "Pistachio brigadeiro with sophisticated and distinctive flavor."
+            },
+            "es": {
+                name: "Brigadeiro de Pistacho",
+                shortDesc: "Sabor sofisticado.",
+                fullDesc: "Brigadeiro de pistacho con sabor sofisticado y marcado."
+            }
+        },
+        price: "R$ 8,00",
+        image: "assets/brigadeiro_pistache.jpg"
+    },
+
+    // --- BOLINHOS E ESPECIAIS ---
+    {
+        id: 'bolinho_brulee',
+        name: "Bolinho Brûlée com Frutas Vermelhas",
+        category: 'Bolinhos',
+        translations: {
+            "pt-BR": {
+                name: "Bolinho Brûlée com Frutas Vermelhas",
+                shortDesc: "Mini bolo de baunilha com geleia de frutas vermelhas.",
+                fullDesc: "Mini bolo de baunilha com geleia de frutas vermelhas e brigadeiro de baunilha de Madagascar Brûlée. Peso aprox.: 105g. Atenção: Por ser um produto livre de conservantes, sugerimos o consumo imediato."
+            },
+            "en": {
+                name: "Brûlée Mini Cake with Red Fruits",
+                shortDesc: "Mini vanilla cake with red fruit jam.",
+                fullDesc: "Mini vanilla cake with red fruit jam and Madagascar vanilla brûlée brigadeiro. Approx. weight: 105g. Note: As a preservative-free product, we suggest immediate consumption."
+            },
+            "es": {
+                name: "Bolito Brûlée con Frutas Rojas",
+                shortDesc: "Mini pastel de vainilla con mermelada de frutas rojas.",
+                fullDesc: "Mini pastel de vainilla con mermelada de frutas rojas y brigadeiro de vainilla de Madagascar Brûlée. Peso aprox.: 105g. Atención: Por ser un producto sin conservantes, sugerimos consumo inmediato."
+            }
+        },
+        price: "R$ 16,00",
+        image: "assets/bolinho_brulee.jpg"
+    },
+    {
+        id: 'toalha_felpuda',
+        name: "Toalha Felpuda",
+        category: 'Bolos',
+        translations: {
+            "pt-BR": {
+                name: "Toalha Felpuda",
+                shortDesc: "Bolo gelado com toque cítrico e coco.",
+                fullDesc: "Bolo gelado com toque cítrico, molhadinho e finalizado com coco. Peso aprox.: 470g"
+            },
+            "en": {
+                name: "Fluffy Towel Cake",
+                shortDesc: "Cold cake with citrus touch and coconut.",
+                fullDesc: "Cold cake with citrus touch, moist and finished with coconut. Approx. weight: 470g"
+            },
+            "es": {
+                name: "Toalla Afelpada",
+                shortDesc: "Pastel frío con toque cítrico y coco.",
+                fullDesc: "Pastel frío con toque cítrico, muy húmedo y finalizado con coco. Peso aprox.: 470g"
+            }
+        },
+        price: "R$ 32,00",
+        image: "assets/toalhafelpuda.jpeg"
+    },
+    {
+        id: 'caseirinho_limao_mirtilo',
+        name: "Caseirinho de Limão com Mirtilo",
+        category: 'Caseirinhos',
+        translations: {
+            "pt-BR": {
+                name: "Caseirinho de Limão com Mirtilo",
+                shortDesc: "Limão com mirtilo e crumble.",
+                fullDesc: "Bolo de limão com mirtilo e crumble de limão. Peso aprox.: 325g"
+            },
+            "en": {
+                name: "Lemon Blueberry Homemade Cake",
+                shortDesc: "Lemon with blueberry and crumble.",
+                fullDesc: "Lemon cake with blueberry and lemon crumble. Approx. weight: 325g"
+            },
+            "es": {
+                name: "Casero de Limón con Arándanos",
+                shortDesc: "Limón con arándanos y crumble.",
+                fullDesc: "Pastel de limón con arándanos y crumble de limón. Peso aprox.: 325g"
+            }
+        },
+        price: "R$ 21,00",
+        image: "assets/limaomirtilo.jpeg"
+    },
+    {
+        id: 'pudim_tradicional',
+        name: "Pudim Tradicional",
+        category: 'Pudim',
+        translations: {
+            "pt-BR": {
+                name: "Pudim Tradicional",
+                shortDesc: "O queridinho da Mirabolando.",
+                fullDesc: "Pudim no Pote - O queridinho da Mirabolando. Pudim de leite condensado com calda de baunilha de Madagascar, super cremoso. Peso aprox.: 140g"
+            },
+            "en": {
+                name: "Traditional Flan",
+                shortDesc: "Mirabolando's favorite.",
+                fullDesc: "Flan in a Jar - Mirabolando's favorite. Condensed milk flan with Madagascar vanilla syrup, super creamy. Approx. weight: 140g"
+            },
+            "es": {
+                name: "Pudín Tradicional",
+                shortDesc: "El favorito de Mirabolando.",
+                fullDesc: "Pudín en Tarro - El favorito de Mirabolando. Pudín de leche condensada con almíbar de vainilla de Madagascar, súper cremoso. Peso aprox.: 140g"
+            }
+        },
+        price: "R$ 20,00",
+        image: "assets/pudim.jpg"
+    },
+    {
+        id: 'torta_maca',
+        name: "Torta de Maçã",
+        category: 'Tortas',
+        translations: {
+            "pt-BR": {
+                name: "Torta de Maçã",
+                shortDesc: "Parece a do desenho, só que muito melhor!",
+                fullDesc: "Torta de Maçã com Especiarias. Acompanha copinho com nosso delicioso coulis de frutas vermelhas. Atenção: Torta assada na hora, por esse motivo, adicione 30 minutos ao tempo de entrega. Peso aprox.: 240g"
+            },
+            "en": {
+                name: "Apple Pie",
+                shortDesc: "Like the cartoon, but much better!",
+                fullDesc: "Apple Pie with Spices. Comes with a small cup of our delicious red fruit coulis. Note: Freshly baked pie, please add 30 minutes to delivery time. Approx. weight: 240g"
+            },
+            "es": {
+                name: "Tarta de Manzana",
+                shortDesc: "Como la del dibujo, pero mucho mejor!",
+                fullDesc: "Tarta de Manzana con Especias. Acompaña un vasito con nuestro delicioso coulis de frutas rojas. Atención: Tarta horneada al momento, por eso, agregue 30 minutos al tiempo de entrega. Peso aprox.: 240g"
+            }
+        },
+        price: "R$ 36,00",
+        image: "assets/torta_maca.jpg"
+    },
+    {
+        id: 'san_sebastian',
+        name: "San Sebastián Cheesecake",
+        category: 'Cheesecakes',
+        translations: {
+            "pt-BR": {
+                name: "San Sebastián Cheesecake",
+                shortDesc: "Crosta caramelizada e interior cremoso.",
+                fullDesc: "Conhecido por sua crosta caramelizada e interior incrivelmente cremoso, ele derrete na boca a cada mordida. Atenção: a imagem é com adicional de calda de chocolate ao leite. Se não selecionar a calda, a basca vai purinha."
+            },
+            "en": {
+                name: "San Sebastián Cheesecake",
+                shortDesc: "Caramelized crust and creamy interior.",
+                fullDesc: "Known for its caramelized crust and incredibly creamy interior, it melts in your mouth with every bite. Note: the image shows additional milk chocolate sauce. If you don't select the sauce, it comes pure."
+            },
+            "es": {
+                name: "San Sebastián Cheesecake",
+                shortDesc: "Costra caramelizada e interior cremoso.",
+                fullDesc: "Conocido por su costra caramelizada e interior increíblemente cremoso, se derrite en la boca con cada mordida. Atención: la imagen es con adicional de salsa de chocolate con leche. Si no selecciona la salsa, viene pura."
+            }
+        },
+        price: "R$ 28,00",
+        image: "assets/san_sebastian.jpg"
+    },
+    {
+        id: 'pave_bossa_nova',
+        name: "Pavê Bossa Nova",
+        category: 'Pavês',
+        translations: {
+            "pt-BR": {
+                name: "Pavê Bossa Nova",
+                shortDesc: "É de comer cantando!",
+                fullDesc: "Camadas de creme de limão, biscoito champanhe embebido no limoncello, caramelo de limão, ganache de macadâmia, Cookie Bossa e chocolate branco derretido. É de comer cantando!"
+            },
+            "en": {
+                name: "Bossa Nova Trifle",
+                shortDesc: "So good you'll sing while eating!",
+                fullDesc: "Layers of lemon cream, champagne biscuit soaked in limoncello, lemon caramel, macadamia ganache, Bossa Cookie and melted white chocolate. So good you'll sing while eating!"
+            },
+            "es": {
+                name: "Pavé Bossa Nova",
+                shortDesc: "¡Para comer cantando!",
+                fullDesc: "Capas de crema de limón, galleta champán empapada en limoncello, caramelo de limón, ganache de macadamia, Cookie Bossa y chocolate blanco derretido. ¡Para comer cantando!"
+            }
+        },
+        price: "R$ 30,00",
+        image: "assets/pave_bossa_nova.jpg"
     }
 ];
 

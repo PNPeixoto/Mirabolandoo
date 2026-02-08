@@ -121,13 +121,14 @@ async function saveItem(event) {
 
     const itemId = document.getElementById('item-id').value;
     const name = document.getElementById('item-name').value.trim();
-    const category = document.getElementById('item-category').value;
-    const subcategory = document.getElementById('item-subcategory').value || null;
+    const menuType = document.getElementById('item-category').value; // menu_type no banco
     const price = document.getElementById('item-price').value.trim();
-    const imageUrl = document.getElementById('item-image-url').value.trim();
-    const available = document.getElementById('item-available').checked;
+    const imageUrl = document.getElementById('item-image-url')?.value?.trim() || '';
+    const active = document.getElementById('item-available')?.checked ?? true;
+    const shortDesc = document.getElementById('item-short-desc')?.value?.trim() || '';
+    const stock = parseInt(document.getElementById('item-stock')?.value) || 0;
 
-    if (!name || !category || !price) {
+    if (!name || !menuType || !price) {
         showToast('Preencha todos os campos obrigatórios', 'error');
         return;
     }
@@ -137,12 +138,13 @@ async function saveItem(event) {
 
     const itemData = {
         name: name,
-        category: category,
-        subcategory: subcategory,
+        menu_type: menuType,
+        category: menuType, // mantém para compatibilidade
         price: formattedPrice,
         image: imageUrl || null,
-        available: available
-        // description removido - campo não existe no banco
+        active: active,
+        short_desc: shortDesc || null,
+        quantity: stock
     };
 
     try {
