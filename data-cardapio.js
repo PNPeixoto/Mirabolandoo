@@ -337,7 +337,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/torta_limao_25.jpg"
+        image: "assets/Torta de Limão.png"
     },
     {
         id: 'banoffee',
@@ -387,7 +387,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/cheesecake_pistache.jpg"
+        image: "assets/pistache.png"
     },
     {
         id: 'cheesecake_mineiro',
@@ -411,7 +411,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/cheesecake_mineiro.jpg"
+        image: "assets/Mineira.png"
     },
     {
         id: 'cheesecake_nutella',
@@ -435,7 +435,7 @@ const menuCardapioLoja = [
             }
         },
         price: "R$ 22,00",
-        image: "assets/cheesecake_nutella.jpg"
+        image: "assets/Nutella.png"
     },
 
     // --- BROWNIES (FATIAS) ---

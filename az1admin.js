@@ -3,10 +3,12 @@
    JavaScript - Supabase Integration (CORRIGIDO)
    ============================================ */
 
+console.log('🚀🚀🚀 ADMIN JS CARREGADO - VERSÃO 20260207175100 🚀🚀🚀');
+
 // Supabase Configuration
-// Nota: O client já foi inicializado no HTML (supabaseClient), vamos reutilizá-lo ou usar as constantes.
-const SUPABASE_URL = 'https://xomejrbswvtkdylwhlba.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvbWVqcmJzd3Z0a2R5bHdobGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzODM5MzAsImV4cCI6MjA4NDk1OTkzMH0.OjCi7WPyricvSwisVUPCmplfDis9_RQd-aap_wfHaT4';
+// Nota: As constantes SUPABASE_URL e SUPABASE_ANON_KEY já estão definidas no HTML
+// O client supabaseClient também já foi inicializado no HTML
+
 
 // Global State
 let currentSection = 'dashboard';
@@ -29,20 +31,33 @@ async function initAdmin() {
     // Importante: Aguardar verificar se o supabaseClient do HTML está pronto
     if (typeof supabaseClient === 'undefined') {
         console.error('Supabase Client não encontrado no HTML');
+        hideFullscreenLoader();
         return;
     }
 
     try {
+        // CORREÇÃO: Carrega dados PRIMEIRO, depois atualiza dashboard
+        console.log('🔄 Carregando dados...');
+
         await Promise.all([
-            loadDashboard(),
             loadOrders(),
             loadMenuItems(),
             loadProntaEntrega(),
             loadCustomers()
         ]);
-        console.log('Todos os dados carregados.');
+
+        console.log('✅ Dados carregados. Orders:', orders ? orders.length : 0);
+
+        // Atualiza dashboard DEPOIS que os dados já foram carregados
+        updateStats();
+        renderRecentOrders();
+
+        console.log('✅ Dashboard atualizado com sucesso');
     } catch (e) {
-        console.error('Erro ao carregar dados iniciais:', e);
+        console.error('❌ Erro ao carregar dados iniciais:', e);
+        // Mesmo com erro, tenta atualizar o dashboard com dados vazios
+        updateStats();
+        renderRecentOrders();
     }
 
     hideFullscreenLoader();
@@ -60,7 +75,16 @@ if (document.readyState === 'loading') {
 
 async function supabaseRequest(endpoint, options = {}) {
     const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
-    
+    const method = options.method || 'GET';
+    const body = options.body || null;
+
+    console.log(`🌐 supabaseRequest: ${method} ${endpoint}`);
+    if (method === 'DELETE') {
+        console.log('  🔴 DELETE REQUEST - Details:');
+        console.log('    - Endpoint completo:', url);
+        console.log('    - Options:', options);
+    }
+
     // CORREÇÃO PRINCIPAL: Pega o token da sessão atual
     let token = SUPABASE_ANON_KEY;
     try {
@@ -81,9 +105,25 @@ async function supabaseRequest(endpoint, options = {}) {
 
     try {
         const response = await fetch(url, {
-            ...options,
-            headers: { ...headers, ...options.headers }
+            method,
+            headers: { ...headers, ...options.headers },
+            body: body ? JSON.stringify(body) : undefined, // Stringify body for non-GET requests
+            ...options // Spread other options like cache, mode, etc.
         });
+
+        console.log(`  📡 Response status: ${response.status} ${response.statusText}`);
+
+        if (method === 'DELETE') {
+            const responseText = await response.text();
+            console.log('  🔴 DELETE Response body:', responseText);
+            console.log('  🔴 Response headers:', Object.fromEntries(response.headers.entries()));
+
+            if (!response.ok) {
+                throw new Error(`API Error ${response.status}: ${responseText}`);
+            }
+            // For DELETE, data might be empty or a simple success message
+            return { success: true, data: responseText ? JSON.parse(responseText) : {}, error: null };
+        }
 
         if (!response.ok) {
             const errText = await response.text();
@@ -91,7 +131,7 @@ async function supabaseRequest(endpoint, options = {}) {
         }
 
         const data = await response.json();
-        return { success: true, data };
+        return { success: true, data, error: null };
     } catch (error) {
         console.error('Supabase request error:', error);
         showToast('Erro de conexão: ' + error.message, 'error');
@@ -149,7 +189,7 @@ function switchSection(section) {
     currentSection = section;
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
-    
+
     document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
     document.getElementById(`${section}-section`)?.classList.add('active');
 
@@ -158,10 +198,14 @@ function switchSection(section) {
         orders: 'Encomendas',
         menu: 'Cardápio',
         'pronta-entrega': 'Pronta Entrega',
+        'manage-items': 'Gerenciar Itens',
         customers: 'Clientes'
     };
     const titleEl = document.getElementById('page-title');
-    if(titleEl) titleEl.textContent = titles[section] || section;
+    if (titleEl) titleEl.textContent = titles[section] || section;
+
+    // Load data for specific sections
+    if (section === 'manage-items') loadAllItems();
 }
 
 function updateDateTime() {
@@ -178,16 +222,21 @@ function updateDateTime() {
 // DASHBOARD LOGIC
 // ============================================
 
-async function loadDashboard() {
-    // Não chama loadOrders aqui para evitar chamada duplicada, 
-    // pois initAdmin já chama loadOrders em paralelo.
-    updateStats(); 
-    // Renderiza orders recentes se já tivermos orders, senão espera o loadOrders terminar
-}
+// Dashboard é atualizado via updateStats() e renderRecentOrders()
+// que são chamadas após os dados serem carregados no initAdmin()
+
 
 function updateStats() {
-    if(!orders) return;
-    
+    console.log('📊 updateStats: Atualizando estatísticas...');
+
+    // Garante que orders é um array válido
+    if (!orders || !Array.isArray(orders)) {
+        console.warn('⚠️ updateStats: Array orders inválido, inicializando vazio');
+        orders = [];
+    }
+
+    console.log('📊 updateStats: Total de pedidos:', orders.length);
+
     const pending = orders.filter(o => o.status === 'pending').length;
     const preparing = orders.filter(o => o.status === 'preparing').length;
     const ready = orders.filter(o => o.status === 'ready').length;
@@ -196,25 +245,42 @@ function updateStats() {
     const todayOrders = orders.filter(o => o.created_at?.startsWith(today));
     const todayTotal = todayOrders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
 
+    console.log('📊 Estatísticas:', { pending, preparing, ready, todayOrders: todayOrders.length, todayTotal });
+
     setText('stat-pending', pending);
     setText('stat-preparing', preparing);
     setText('stat-ready', ready);
     setText('stat-total', `R$ ${todayTotal.toFixed(2).replace('.', ',')}`);
     setText('pending-count', pending);
-    
+
     renderRecentOrders();
+
+    console.log('✅ updateStats: Estatísticas atualizadas');
 }
 
 function setText(id, value) {
     const el = document.getElementById(id);
-    if(el) el.textContent = value;
+    if (el) el.textContent = value;
 }
 
 function renderRecentOrders() {
+    console.log('📋 renderRecentOrders: Renderizando pedidos recentes...');
     const container = document.getElementById('recent-orders-list');
-    if(!container) return;
+    if (!container) {
+        console.warn('⚠️ renderRecentOrders: Container "recent-orders-list" não encontrado');
+        return;
+    }
+
+    // Validação robusta do array orders
+    if (!orders || !Array.isArray(orders)) {
+        console.warn('⚠️ renderRecentOrders: Array orders inválido:', orders);
+        container.innerHTML = '<p class="empty-state">Nenhuma encomenda ainda</p>';
+        return;
+    }
 
     const recent = orders.slice(0, 5);
+    console.log('📋 renderRecentOrders:', recent.length, 'pedidos recentes');
+
     if (recent.length === 0) {
         container.innerHTML = '<p class="empty-state">Nenhuma encomenda ainda</p>';
         return;
@@ -230,6 +296,8 @@ function renderRecentOrders() {
             <span class="order-total">R$ ${parseFloat(order.total).toFixed(2).replace('.', ',')}</span>
         </div>
     `).join('');
+
+    console.log('✅ renderRecentOrders: Renderização concluída');
 }
 
 // ============================================
@@ -237,24 +305,34 @@ function renderRecentOrders() {
 // ============================================
 
 async function loadOrders() {
+    console.log('📦 loadOrders: Iniciando carregamento...');
     const statusFilter = document.getElementById('status-filter')?.value;
     let endpoint = 'orders?order=created_at.desc';
     if (statusFilter) endpoint += `&status=eq.${statusFilter}`;
 
+    console.log('📦 loadOrders: Endpoint:', endpoint);
+
     const result = await supabaseRequest(endpoint);
+
     if (result.success) {
-        orders = result.data;
+        orders = result.data || [];
+        console.log('✅ loadOrders: Sucesso!', orders.length, 'pedidos carregados');
         renderOrdersTable();
         updateStats(); // Atualiza stats com novos dados
+    } else {
+        console.error('❌ loadOrders: Erro ao carregar pedidos:', result.error);
+        orders = []; // Garante que orders sempre seja um array
+        renderOrdersTable();
+        updateStats();
     }
 }
 
 function renderOrdersTable() {
     const tbody = document.getElementById('orders-table-body');
-    if(!tbody) return;
+    if (!tbody) return;
 
     if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma encomenda encontrada</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhuma encomenda encontrada</td></tr>';
         return;
     }
 
@@ -278,7 +356,15 @@ function renderOrdersTable() {
             </td>
             <td>${formatDate(order.created_at)}</td>
             <td>
-                <button class="action-btn view" onclick="viewOrder('${order.id}')">👁️ Ver</button>
+                <div class="order-actions-inline">
+                    <button class="btn-whatsapp ${order.whatsapp_sent ? 'sent' : ''}" 
+                            onclick="sendWhatsAppMessage('${order.id}')" 
+                            title="${order.whatsapp_sent ? 'WhatsApp já enviado' : 'Enviar WhatsApp'}">
+                        ${order.whatsapp_sent ? '✅' : '📲'}
+                    </button>
+                    <button class="action-btn view" onclick="viewOrder('${order.id}')">👁️</button>
+                    <button class="btn-delete-order" onclick="event.stopPropagation(); deleteOrder('${order.id}');" title="Excluir">🗑️</button>
+                </div>
             </td>
         </tr>
     `).join('');
@@ -294,7 +380,7 @@ async function updateOrderStatus(orderId, newStatus) {
         showToast(`Status atualizado para: ${translateStatus(newStatus)}`);
         // Atualiza array local para refletir mudança sem recarregar tudo
         const order = orders.find(o => o.id === orderId);
-        if(order) order.status = newStatus;
+        if (order) order.status = newStatus;
         updateStats();
     } else {
         showToast('Erro ao atualizar status', 'error');
@@ -349,32 +435,44 @@ async function loadMenuItems() {
 
 function populateCategoryFilter() {
     const filter = document.getElementById('category-filter');
-    if(!filter) return;
+    if (!filter) return;
     const categories = [...new Set(menuItems.map(item => item.category))];
-    
+
     let html = '<option value="">Todas Categorias</option>';
     categories.forEach(cat => html += `<option value="${cat}">${cat}</option>`);
     filter.innerHTML = html;
-    
+
     // Evita adicionar múltiplos listeners se a função for chamada novamente
     filter.onchange = () => renderMenuGrid(filter.value);
 }
 
+// Flag para prevenir renderizações múltiplas simultâneas
+let isRenderingMenu = false;
+
 function renderMenuGrid(categoryFilter = '') {
+    // Proteção contra loop infinito
+    if (isRenderingMenu) {
+        console.warn('⚠️ renderMenuGrid já está renderizando, ignorando chamada duplicada');
+        return;
+    }
+
     const container = document.getElementById('menu-grid');
-    if(!container) return;
-    
+    if (!container) return;
+
+    isRenderingMenu = true;
+    console.log('📋 renderMenuGrid: Renderizando grid de menu...');
+
     let items = menuItems;
     if (categoryFilter) items = items.filter(item => item.category === categoryFilter);
 
     if (items.length === 0) {
         container.innerHTML = '<p class="empty-state">Nenhum item encontrado</p>';
+        isRenderingMenu = false;
         return;
     }
 
     container.innerHTML = items.map(item => `
         <div class="menu-item ${item.active ? '' : 'inactive'}">
-            <img src="${item.image}" alt="${item.name}" class="menu-item-image" onerror="this.src='https://via.placeholder.com/100'">
             <div class="menu-item-content">
                 <div class="menu-item-header">
                     <span class="menu-item-name">${item.name}</span>
@@ -389,6 +487,9 @@ function renderMenuGrid(categoryFilter = '') {
             </div>
         </div>
     `).join('');
+
+    isRenderingMenu = false;
+    console.log('✅ renderMenuGrid: Renderização concluída');
 }
 
 async function toggleMenuItem(itemId, active) {
@@ -400,7 +501,7 @@ async function toggleMenuItem(itemId, active) {
         showToast(`Item ${active ? 'ativado' : 'desativado'}`);
         // Atualiza local
         const item = menuItems.find(i => i.id === itemId);
-        if(item) item.active = active;
+        if (item) item.active = active;
         renderMenuGrid(document.getElementById('category-filter')?.value);
     }
 }
@@ -435,7 +536,6 @@ function renderProntaGrid() {
 
     container.innerHTML = prontaEntregaItems.map(item => `
         <div class="pronta-item ${item.active ? '' : 'inactive'} ${(item.quantity || 0) === 0 ? 'out-of-stock' : ''}">
-            <img src="${item.image}" alt="${item.name}" class="pronta-item-image" onerror="this.src='https://via.placeholder.com/100'">
             <div class="pronta-item-content">
                 <div class="pronta-item-header">
                     <span class="pronta-item-name">${item.name}</span>
@@ -467,7 +567,7 @@ async function updateProntaQuantity(itemId, quantity) {
         showToast('Estoque atualizado');
         // Atualiza localmente e re-renderiza para ser rápido
         const item = prontaEntregaItems.find(i => i.id === itemId);
-        if(item) item.quantity = newQty;
+        if (item) item.quantity = newQty;
         renderProntaGrid();
         updateStockCount();
     }
@@ -487,8 +587,8 @@ async function loadCustomers() {
 
 function renderCustomersTable() {
     const tbody = document.getElementById('customers-table-body');
-    if(!tbody) return;
-    
+    if (!tbody) return;
+
     if (customers.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum cliente</td></tr>';
         return;
@@ -515,7 +615,7 @@ function formatItems(items) {
         const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
         const count = parsedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
         return `${count} item${count !== 1 ? 's' : ''}`;
-    } catch(e) { return 'Erro itens'; }
+    } catch (e) { return 'Erro itens'; }
 }
 
 function formatDate(dateString) {
@@ -541,10 +641,10 @@ function translateStatus(status) {
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const msgEl = document.getElementById('toast-message') || toast; // Fallback se não tiver filho
-    
-    if(msgEl !== toast) msgEl.textContent = message;
+
+    if (msgEl !== toast) msgEl.textContent = message;
     else toast.textContent = message;
-    
+
     toast.className = `toast show ${type}`;
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
@@ -559,3 +659,520 @@ document.getElementById('order-modal')?.addEventListener('click', (e) => {
     if (e.target.id === 'order-modal') closeModal();
 });
 document.getElementById('status-filter')?.addEventListener('change', loadOrders);
+
+// ============================================
+// WHATSAPP INTEGRATION
+// ============================================
+
+/**
+ * Gera mensagem template para WhatsApp
+ */
+function generateWhatsAppMessage(order) {
+    const deliveryDate = new Date(order.delivery_date).toLocaleDateString('pt-BR');
+    const itemsList = Array.isArray(order.items)
+        ? order.items.map(item => `• ${item.quantity}x ${item.name}`).join('\n')
+        : '• Pedido personalizado';
+    const totalPrice = parseFloat(order.total_price || 0).toFixed(2).replace('.', ',');
+
+    return `🎂 *Mirabolando Confeitaria*
+
+Olá ${order.customer_name || 'Cliente'}! 👋
+
+Seu pedido foi confirmado com sucesso! ✅
+
+*Detalhes do Pedido:*
+${itemsList}
+
+*Valor Total:* R$ ${totalPrice}
+📅 *Data de Retirada:* ${deliveryDate}
+
+Estamos preparando tudo com muito carinho! 💕
+
+Qualquer dúvida, estamos à disposição.
+
+_Mirabolando Confeitaria - Adoçando seus momentos especiais_ 🍰`;
+}
+
+async function sendWhatsAppMessage(orderId) {
+    try {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) {
+            showToast('Pedido não encontrado', 'error');
+            return;
+        }
+
+        const message = generateWhatsAppMessage(order);
+        const phone = (order.customer_phone || order.customer_whatsapp || '').replace(/\D/g, '');
+
+        if (!phone || phone.length < 10) {
+            showToast('Número de WhatsApp inválido', 'error');
+            return;
+        }
+
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/55${phone}?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+
+        await markWhatsAppSent(orderId);
+        showToast('WhatsApp aberto! Clique em "Enviar"', 'success');
+        await loadOrders();
+    } catch (error) {
+        console.error('Erro ao enviar WhatsApp:', error);
+        showToast('Erro ao abrir WhatsApp', 'error');
+    }
+}
+
+async function markWhatsAppSent(orderId) {
+    const result = await supabaseRequest(`orders?id=eq.${orderId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ whatsapp_sent: true, updated_at: new Date().toISOString() })
+    });
+    if (result.success) {
+        const order = orders.find(o => o.id === orderId);
+        if (order) order.whatsapp_sent = true;
+    }
+    return result.success;
+}
+
+// Versão DEBUG da função deleteorder - COPIAR para az1admin.js linha 712
+
+async function deleteOrder(orderId) {
+    console.log('🗑️🗑️🗑️ deleteOrder v180930 CHAMADO! ID:', orderId);
+    console.log('  📋 Tipo:', typeof orderId, '| Total pedidos:', orders.length);
+
+    const order = orders.find(o => o.id === orderId);
+    console.log('  🔍 Pedido encontrado:', order ? `SIM - ${order.customer_name}` : 'NÃO');
+
+    if (!order) {
+        console.error('❌ PEDIDO NÃO ENCONTRADO!');
+        showToast('Pedido não encontrado', 'error');
+        return;
+    }
+
+    if (!confirm(`⚠️ Excluir encomenda de ${order.customer_name}?\n\nEsta ação não pode ser desfeita.`)) {
+        console.log('⚪ Cancelado pelo usuário');
+        return;
+    }
+
+    try {
+        console.log('🔄 Usando Supabase Client DELETE...');
+
+        // Usar Supabase Client em vez de REST API direto
+        const { data, error, count } = await supabaseClient
+            .from('orders')
+            .delete()
+            .eq('id', orderId)
+            .select();  // Retorna os registros deletados
+
+        console.log('📡 Supabase Client Response:');
+        console.log('  - data:', data);
+        console.log('  - error:', error);
+        console.log('  - count:', count);
+
+        if (error) {
+            console.error('❌ Erro Supabase:', error);
+
+            // Mensagens de erro específicas
+            if (error.code === 'PGRST301' || error.message.includes('RLS')) {
+                showToast('⚠️ Sem permissão para excluir. Verifique RLS no Supabase.', 'error');
+            } else {
+                showToast(`Erro: ${error.message}`, 'error');
+            }
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            console.warn('⚠️ DELETE executado mas 0 registros afetados (RLS?)');
+            showToast('⚠️ Nenhum registro foi excluído. Verifique permissões.', 'error');
+            return;
+        }
+
+        console.log('✅ SUCESSO! Registro deletado:', data);
+        showToast('Encomenda excluída!', 'success');
+
+        // Remover do array local
+        orders = orders.filter(o => o.id !== orderId);
+        console.log('📊 Restantes:', orders.length);
+
+        // Atualizar UI
+        await loadOrders();
+        updateStats();
+
+    } catch (error) {
+        console.error('❌ Exceção:', error);
+        showToast('Erro ao excluir', 'error');
+    }
+}
+
+
+async function generateDailyReport() {
+    try {
+        if (typeof XLSX === 'undefined') {
+            showToast('Biblioteca de Excel não carregada', 'error');
+            return;
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        const todayOrders = orders.filter(o => o.created_at && new Date(o.created_at).toISOString().split('T')[0] === today);
+
+        if (todayOrders.length === 0) {
+            showToast('Nenhuma encomenda registrada hoje', 'info');
+            return;
+        }
+
+        const excelData = todayOrders.map(order => ({
+            'ID': (order.id || '').substring(0, 8),
+            'Cliente': order.customer_name || 'N/A',
+            'WhatsApp': order.customer_phone || 'N/A',
+            'Itens': Array.isArray(order.items) ? order.items.map(i => `${i.quantity}x ${i.name}`).join(', ') : 'Pedido personalizado',
+            'Valor Total': `R$ ${parseFloat(order.total_price || 0).toFixed(2).replace('.', ',')}`,
+            'Data de Retirada': order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('pt-BR') : 'N/A',
+            'Status': translateStatus(order.status || 'pending'),
+            'WhatsApp Enviado': order.whatsapp_sent ? 'Sim' : 'Não',
+            'Criado em': order.created_at ? new Date(order.created_at).toLocaleString('pt-BR') : 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        ws['!cols'] = [{ wch: 10 }, { wch: 20 }, { wch: 15 }, { wch: 40 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 18 }];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Encomendas');
+
+        const filename = `Mirabolando_Encomendas_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`;
+        XLSX.writeFile(wb, filename);
+        showToast(`✅ Relatório gerado: ${filename}`, 'success');
+    } catch (error) {
+        console.error('Erro ao gerar relatório:', error);
+        showToast('Erro ao gerar relatório Excel', 'error');
+    }
+}
+
+// ============================================
+// ITEM MANAGEMENT (CRUD)
+// ============================================
+
+let allItems = []; // Array para armazenar todos os itens
+
+/**
+ * Load all items from database
+ */
+async function loadAllItems() {
+    console.log('📦 loadAllItems: Carregando todos os itens...');
+    const result = await supabaseRequest('menu_items?order=menu_type,name');
+    if (result.success) {
+        allItems = result.data || [];
+        console.log('✅ loadAllItems: Sucesso!', allItems.length, 'itens carregados');
+        console.log('📊 Exemplo de item:', allItems[0]); // DEBUG: Ver estrutura dos dados
+        filterItems(); // Usar filtro em vez de renderizar diretamente
+    } else {
+        console.error('❌ loadAllItems: Erro:', result.error);
+        showToast('Erro ao carregar itens', 'error');
+    }
+}
+
+/**
+ * Map legacy category names to menu_type
+ */
+function getCategoryFromItem(item) {
+    // Se tem menu_type válido, usar ele
+    if (item.menu_type && item.menu_type !== 'undefined' && item.menu_type !== '') {
+        return item.menu_type;
+    }
+
+    // Mapear category antiga para menu_type novo  
+    const categoryMap = {
+        'Bolos': 'cardapio',
+        'Tortas': 'cardapio',
+        'Fatias': 'cardapio',
+        'bolos': 'cardapio',
+        'tortas': 'cardapio',
+        'fatias': 'cardapio',
+        'Pronta Entrega': 'pronta_entrega',
+        'pronta_entrega': 'pronta_entrega',
+        'ProntaEntrega': 'pronta_entrega',
+        'Encomenda': 'encomenda',
+        'encomenda': 'encomenda',
+        'cardapio': 'cardapio',
+        'cardápio': 'cardapio'
+    };
+
+    return categoryMap[item.category] || item.category || 'cardapio';
+}
+
+/**
+ * Filter items by category
+ */
+function filterItems() {
+    console.log('🔄 filterItems v20260207170900 - NOVA VERSÃO CARREGADA!');
+
+    const selectElement = document.getElementById('category-filter');
+
+    if (!selectElement) {
+        console.error('❌ Elemento category-filter não encontrado!');
+        return;
+    }
+
+    console.log('📋 DEBUG COMPLETO DO SELECT:');
+    console.log('  - Elemento:', selectElement);
+    console.log('  - tagName:', selectElement.tagName);
+    console.log('  - id:', selectElement.id);
+    console.log('  - selectedIndex:', selectElement.selectedIndex);
+    console.log('  - options.length:', selectElement.options.length);
+    console.log('  - options:', Array.from(selectElement.options).map(o => ({ value: o.value, text: o.text })));
+    console.log('  - selected option:', selectElement.options[selectElement.selectedIndex]);
+    console.log('  - value DIRETO:', selectElement.value);
+    console.log('  - value via getAttribute:', selectElement.getAttribute('value'));
+
+    const categoryFilter = selectElement.value;
+    console.log(`🔍 Filtro: "${categoryFilter || 'Nenhum'}" (${allItems.length} itens totais)`);
+
+    let filtered = [...allItems];
+
+    // Se não há filtro, mostrar todos
+    if (!categoryFilter || categoryFilter === '') {
+        console.log('⚠️ Filtro vazio, mostrando todos os itens');
+        renderItemsManagement(filtered);
+        return;
+    }
+
+    // Filter by category
+    console.log(`🔎 Aplicando filtro: "${categoryFilter}"`);
+    filtered = filtered.filter(item => {
+        const itemCategory = getCategoryFromItem(item);
+        return itemCategory === categoryFilter;
+    });
+
+    console.log(`✅ ${filtered.length} itens após filtro por "${categoryFilter}"`);
+    renderItemsManagement(filtered);
+}
+
+
+/**
+ * Render items management grid
+ */
+function renderItemsManagement(itemsToRender = null) {
+    const container = document.getElementById('items-management-grid');
+    if (!container) {
+        console.error('❌ Container items-management-grid não encontrado');
+        return;
+    }
+
+    const items = itemsToRender || allItems;
+    console.log(`📋 Renderizando ${items.length} itens...`);
+
+    if (items.length === 0) {
+        container.innerHTML = '<p class="empty-state">Nenhum item encontrado com os filtros selecionados.</p>';
+        return;
+    }
+
+    container.innerHTML = items.map(item => {
+        // Parse price correctly - handle Brazilian format "R$ 22,00"
+        let price = item.price;
+        if (typeof price === 'string') {
+            price = price.replace(/R\$\s*/g, '').trim().replace(',', '.');
+        }
+        price = parseFloat(price);
+        const priceFormatted = !isNaN(price) && price > 0 ? price.toFixed(2).replace('.', ',') : '0,00';
+
+        const categoryBadge = item.menu_type || 'cardapio';
+        const categoryLabel = {
+            'cardapio': 'Cardápio',
+            'pronta_entrega': 'Pronta Entrega',
+            'encomenda': 'Encomenda'
+        }[categoryBadge] || 'Cardápio';
+
+        const stockInfo = item.menu_type === 'pronta_entrega'
+            ? `<span class="item-stock">Estoque: ${item.quantity || 0}</span>`
+            : '';
+
+        const activeStatus = item.active !== false ? 'active' : 'inactive';
+        const activeLabel = item.active !== false ? 'Ativo' : 'Inativo';
+
+        return `
+            <div class="item-card">
+                <div class="item-card-header">
+                    <h4>${item.name}</h4>
+                    <span class="item-badge ${categoryBadge}">${categoryLabel}</span>
+                </div>
+                <div class="item-card-body">
+                    <div class="item-info">
+                        <span class="item-price">R$ ${priceFormatted}</span>
+                        ${stockInfo}
+                        <span class="item-status ${activeStatus}">${activeLabel}</span>
+                    </div>
+                    ${item.description ? `<p class="item-description">${item.description}</p>` : ''}
+                </div>
+                <div class="item-card-actions">
+                    <button class="btn-icon btn-edit" onclick="showItemModal(${item.id})" title="Editar">
+                        ✏️
+                    </button>
+                    <button class="btn-icon btn-delete" onclick="deleteItem(${item.id})" title="Excluir">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Get category label
+ */
+function getCategoryLabel(category) {
+    const labels = {
+        'cardapio': 'Cardápio',
+        'pronta_entrega': 'Pronta Entrega',
+        'encomenda': 'Encomenda'
+    };
+    return labels[category] || category;
+}
+
+/**
+ * Show item modal for create or edit
+ */
+function showItemModal(itemId = null) {
+    console.log('📝 showItemModal:', itemId ? 'Editar' : 'Criar novo');
+    const modal = document.getElementById('item-modal');
+    const title = document.getElementById('item-modal-title');
+    const form = document.getElementById('item-form');
+
+    // Reset form
+    form.reset();
+    document.getElementById('item-id').value = '';
+    document.getElementById('item-active').checked = true;
+
+    if (itemId) {
+        // Edit mode
+        const item = allItems.find(i => i.id === itemId);
+        if (item) {
+            title.textContent = 'Editar Item';
+            document.getElementById('item-id').value = item.id;
+            document.getElementById('item-name').value = item.name || '';
+            document.getElementById('item-price').value = item.price || '';
+            document.getElementById('item-category').value = item.menu_type || '';
+            document.getElementById('item-image').value = item.image || '';
+            document.getElementById('item-description').value = item.description || '';
+            document.getElementById('item-stock').value = item.quantity || 0;
+            document.getElementById('item-active').checked = item.active !== false;
+        }
+    } else {
+        // Create mode
+        title.textContent = 'Adicionar Novo Item';
+    }
+
+    modal.classList.add('active');
+}
+
+/**
+ * Close item modal
+ */
+function closeItemModal() {
+    const modal = document.getElementById('item-modal');
+    modal.classList.remove('active');
+}
+
+/**
+ * Save item (create or update)
+ */
+async function saveItem(event) {
+    event.preventDefault();
+
+    const itemId = document.getElementById('item-id').value;
+    const name = document.getElementById('item-name').value.trim();
+    const price = parseFloat(document.getElementById('item-price').value);
+    const category = document.getElementById('item-category').value;
+    const image = document.getElementById('item-image').value.trim();
+    const description = document.getElementById('item-description').value.trim();
+    const stock = parseInt(document.getElementById('item-stock').value) || 0;
+    const active = document.getElementById('item-active').checked;
+
+    // Validation
+    if (!name || !price || !category) {
+        showToast('Preencha todos os campos obrigatórios', 'error');
+        return;
+    }
+
+    if (price <= 0) {
+        showToast('Preço deve ser maior que zero', 'error');
+        return;
+    }
+
+    const itemData = {
+        name,
+        price,
+        menu_type: category,
+        image: image || null,
+        description: description || null,
+        quantity: category === 'pronta_entrega' ? stock : null,
+        active,
+        updated_at: new Date().toISOString()
+    };
+
+    let result;
+    if (itemId) {
+        // Update existing item
+        console.log('🔄 Atualizando item:', itemId);
+        result = await supabaseRequest(`menu_items?id=eq.${itemId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(itemData)
+        });
+    } else {
+        // Create new item
+        console.log('➕ Criando novo item');
+        itemData.created_at = new Date().toISOString();
+        result = await supabaseRequest('menu_items', {
+            method: 'POST',
+            body: JSON.stringify(itemData)
+        });
+    }
+
+    if (result.success) {
+        showToast(itemId ? 'Item atualizado com sucesso!' : 'Item criado com sucesso!', 'success');
+        closeItemModal();
+
+        // Reload all data
+        await Promise.all([
+            loadAllItems(),
+            loadMenuItems(),
+            loadProntaEntrega()
+        ]);
+    } else {
+        showToast('Erro ao salvar item: ' + result.error, 'error');
+    }
+}
+
+/**
+ * Confirm before deleting item
+ */
+function deleteItemConfirm(itemId) {
+    const item = allItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    if (confirm(`Tem certeza que deseja deletar "${item.name}"?\n\nEsta ação não pode ser desfeita.`)) {
+        deleteItem(itemId);
+    }
+}
+
+/**
+ * Delete item
+ */
+async function deleteItem(itemId) {
+    console.log('🗑️ Deletando item:', itemId);
+
+    const result = await supabaseRequest(`menu_items?id=eq.${itemId}`, {
+        method: 'DELETE'
+    });
+
+    if (result.success) {
+        showToast('Item deletado com sucesso!', 'success');
+
+        // Reload all data
+        await Promise.all([
+            loadAllItems(),
+            loadMenuItems(),
+            loadProntaEntrega()
+        ]);
+    } else {
+        showToast('Erro ao deletar item: ' + result.error, 'error');
+    }
+}
